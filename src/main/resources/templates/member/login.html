@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<!-- 	<meta charset="UTF-8"> -->
+<!-- 	<meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+<!-- 	<meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+<!-- 	<link rel="stylesheet" href="../../css/intro.css" type="text/css"> -->
+	<title>로그인 페이지</title>
+</head>
+
+<body>
+    <header>
+        <div class="topBanner">
+            <a>솔루션<span>완전 무료!</span>시작하세요!</a>
+        </div>
+    </header>
+
+    <div class="grayBgArea">
+        <div class="centerWrap">
+            <div class="loginWrap">
+                <a href="/">
+<!--                     <img src="../../images/logo02.png" alt="로고"> -->
+                </a>
+                <form th:action="@{/auth}" method="post">
+                    <div class="user-box">
+                        <input id="loginEmail" type="text" th:name="userId" required="">
+                        <label for="loginEmail">이메일</label>
+                    </div>
+                    <div class="user-box">
+                        <input id="loginPassword" type="password" th:name="userPwd" required="">
+                        <label for="loginPassword">비밀번호</label>
+                    </div>
+                    <div class="rememberId">
+                        <input id="rememberId" type="checkbox" name="">
+                        <label for="rememberId">아이디 저장</label>
+                    </div>
+                    <div class="loginBlueBtn">
+                        <button type="submit">로그인</button>
+                    </div>
+                </form>
+                <a>비밀번호를 변경하시겠습니까?</a>
+                
+                
+                <!-- error -->
+                <!-- 시큐리티의 로그인 실패시, 로그인 페이지로 에러와 함께 redirect 된다-->
+<!--                 <div th:if="${param.error}"> -->
+<!-- 	                <div class="alert alert-danger" style="color:#F00;" th:text="${errorMessage}"> -->
+<!-- 	                    사용자ID 또는 비밀번호를 확인해 주세요. -->
+<!-- 	                </div> -->
+<!-- 	            </div> -->
+	            <!-- 시큐리티의 로그인 실패시, 로그인 페이지로 에러와 함께 redirect 된다-->
+	            <div th:if="${not #strings.isEmpty(errorMessage)}">
+	                <div class="alert alert-danger" style="color:#F00;" th:text="${errorMessage}">
+	                    로그인에러
+	                </div>
+	            </div>
+                
+                <!-- 회원가입 -->
+<!--                 <form th:action="@{/signup}" method="get"> -->
+<!--                 <div id="inputBox"> -->
+<!--                     <div class="button-login-box"> -->
+<!--                         <button type="submit" class="btn btn-primary btn-xs" style="width:100%">회원가입</button> -->
+<!--                     </div> -->
+<!--                 </div> -->
+<!--                 </form> -->
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

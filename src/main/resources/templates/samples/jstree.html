@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jstree 예제</title>
+    
+    <!-- jQuery 포함 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Prototype.js 포함 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/prototype/1.7.3.0/prototype.js"></script>
+    
+    <!-- jstree CSS 및 JS 포함 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    
+    <!-- jstreeCommon.js 파일 포함 -->
+    <script src="path/to/jstreeCommon.js"></script>
+
+    <style>
+        #jstree {
+            margin: 20px;
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>jstree 예제</h1>
+    <div id="jstree"></div>
+
+    <button id="addButton">노드 추가</button>
+    <button id="deleteButton">선택한 노드 삭제</button>
+
+    <script>
+        $(document).ready(function() {
+            // jstree 초기화
+            JSTreeCommon.loadData('jstree', '/api/getTreeData'); // 실제 API URL로 변경
+
+            // 노드 추가 버튼 클릭 시
+            $('#addButton').on('click', function() {
+                const newNode = { "id": "newNode", "text": "새 노드" };
+                JSTreeCommon.addNode('jstree', newNode);
+            });
+
+            // 노드 삭제 버튼 클릭 시
+            $('#deleteButton').on('click', function() {
+                const selectedNodes = $('#jstree').jstree().get_selected();
+                JSTreeCommon.deleteNode('jstree', selectedNodes, '/api/deleteNode'); // 실제 API URL로 변경
+            });
+
+            // 노드 선택 시 로그 출력
+            $('#jstree').on('select_node.jstree', function (e, data) {
+                console.log('선택한 노드:', data.node);
+            });
+        });
+    </script>
+
+</body>
+</html>

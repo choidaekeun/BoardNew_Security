@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>로그인</title>
+    <link rel="stylesheet" th:href="@{/css/default.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/content.css}" />
+    <link rel="stylesheet" th:href="@{/css/button.css}" />
+	<style>
+		#login_box .signup_btn {background:#42d870; border:0; border-bottom:solid 3px #4ed177; border-radius:50px; width:100%; height:52px; line-height:52px; font-size:16px; color:#fff; text-align:center; margin:20px 0 15px;}
+	</style>
+</head>
+
+<body>
+	<div id="login_wrap">
+		<div id="login_box">
+			<div class="login_con">
+				<div class="login_tit">
+					<h2>게시판 프로젝트</h2>
+					<p>LOG<i>IN</i></p>
+				</div>
+
+				<div class="login_input">
+					<form id="loginForm" onsubmit="return false;" autocomplete="off">
+						<ul>
+							<li>
+								<label for="loginId" class="skip_info">아이디</label>
+								<input type="text" id="loginId" name="loginId" placeholder="아이디" title="아이디" />
+							</li>
+							<li>
+								<label for="password" class="skip_info">비밀번호</label>
+								<input type="password" id="password" name="password" title="비밀번호" placeholder="비밀번호" />
+							</li>
+						</ul>
+						<button type="button" onclick="login();" class="login_btn">로그인</button>
+						<button type="button" onclick="openSignupPopup();" class="signup_btn">회원가입</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--/* 회원가입 popup */-->
+	<div id="signupPopup" class="popLayer">
+		<h3>회원가입</h3>
+		<div class="pop_container">
+			<form id="signupForm" onsubmit="return false;" autocomplete="off">
+				<table class="tb tb_row tl">
+					<colgroup>
+						<col style="width:30%;" /><col style="width:70%;" />
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">아이디<span class="es">필수 입력</span></th>
+							<td>
+								<input type="text" name="loginId" placeholder="아이디" maxlength="20" style="width: 80%;" />
+								<button type="button" id="idCheckBtn" class="btns btn_st5" onclick="checkLoginId();" style="width: 20%; float: right;">중복 확인</button>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">비밀번호<span class="es">필수 입력</span></th>
+							<td><input type="password" name="password" placeholder="비밀번호" maxlength="30" /></td>
+						</tr>
+						<tr>
+							<th scope="row">비밀번호 재입력<span class="es">필수 입력</span></th>
+							<td><input type="password" name="passwordCheck" placeholder="비밀번호 재입력" maxlength="30" /></td>
+						</tr>
+						<tr>
+							<th scope="row">주소<span class="es">필수 입력</span></th>
+							<td>
+								<input type="text" name="addr1" placeholder="주소" maxlength="10" style="width: 63%;" />
+								<input type="text" name="zipcode" placeholder="우편번호" maxlength="10" style="width: 20%;" />
+								<button type="button" class="btns btn_st5" onclick="searchPostcode();" style="width: 15%; float: right;">검색</button>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">상세주소<span class="es">필수 입력</span></th>
+							<td><input type="text" name="addr2" placeholder="상세주소" maxlength="10" /></td>
+						</tr>
+						<tr>
+							<th scope="row">이름<span class="es">필수 입력</span></th>
+							<td><input type="text" name="name" placeholder="이름" maxlength="10" /></td>
+						</tr>
+						<tr>
+							<th scope="row">성별<span class="es">필수 입력</span></th>
+							<td>
+								<div class="radio_group">
+									<p class="radios">
+										<input type="radio" id="male" name="gender" value="M" checked />
+										<label for="male">남</label><span class="check"></span>
+									</p>
+									<p class="radios">
+										<input type="radio" id="female" name="gender" value="F" />
+										<label for="female">여</label><span class="check"></span>
+									</p>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">생년월일<span class="es">필수 입력</span></th>
+							<td><input type="number" name="birthday" placeholder="숫자 8자리 입력" /></td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+			<p class="btn_set">
+				<button type="button" class="btns btn_st2" onclick="saveMember();">가입</button>
+				<button type="button" class="btns btn_bdr2" onclick="closeSignupPopup();">취소</button>
+			</p>
+		</div>
+		<button type="button" class="btn_close" onclick="closeSignupPopup();"><span><i class="far fa-times-circle"></i></span></button>
+	</div>
+
+	<script th:src="@{/js/function.js}"></script>
+	<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+	<script th:src="@{/js/common.js}"></script>
+	<script src="https://kit.fontawesome.com/79613ae794.js" crossorigin="anonymous"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>	
+	
+		// Enter 로그인 이벤트 바인딩
+		$(document).ready(function() {
+			$('#loginId, #password').on('keyup', function(e) {
+					if (e.keyCode === 13) {
+						login();
+					}
+				});
+		});
+		
+		
+		function searchPostcode() {
+			new daum.Postcode({
+		        oncomplete: function(data) {
+		        	
+		            console.log(data);
+		            
+		            const form = $('#signupForm');
+		            
+		            let fullAddr = '';
+		            let extraAddr = '';
+
+	                //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+	                if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+	                	fullAddr = data.roadAddress;
+	                	
+	                	// 법정동, 빌딩정보
+	                	if(data.bname !== '') {
+	                		extraAddr += data.bname;
+	                	}
+	                	if(data.buildingName !== '') {
+	                		extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+	                	}
+	                	
+	                	fullAddr += (extraAddr !== '' ? ' (' + extraAddr + ')' : '');	
+	                
+	                } else { // 사용자가 지번 주소를 선택했을 경우(J)
+	                	fullAddr = data.jibunAddress;
+	                }
+
+	                // 우편번호와 주소 정보를 해당 필드에 넣는다.
+	                form.find('[name=zipcode]').val(data.zonecode).prop('readonly',true);
+	                form.find('[name=addr1]').val(fullAddr).prop('readonly',true);	                
+	                form.find('[name=addr2]').focus();
+		            
+		        }
+		    }).open();
+			
+		}
+		
+
+		// 로그인
+		function login() {
+	
+			const form = $('#loginForm');
+	
+			if ( !form.find('[name=loginId]').val() || !form.find('[name=password]').val() ) {
+				alert('아이디와 비밀번호를 모두 입력해 주세요.');
+				form.find('[name=loginId]').focus();
+				return false;
+			}
+	
+			$.ajax({
+				url : '/login',
+				type : 'POST',
+				dataType : 'json',
+				data : {
+					loginId: form.find('[name=loginId]').val(),
+					password: form.find('[name=password]').val()
+				},
+				async : false,
+				success : function (response) {				
+					location.href = '/post/list.do';
+				},
+				error : function (request, status, error) {
+					console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+					alert('아이디와 비밀번호를 확인해 주세요.');
+				}
+			})
+		}
+
+		// 회원가입 팝업 open
+		function openSignupPopup() {
+			const form = $('#signupForm');
+			console.log("form =>" ,form);
+			layerPop('signupPopup');
+		}
+
+		// 회원가입 팝업 close
+		function closeSignupPopup() {
+			const form = $('#signupForm');
+			form.find('[name=loginId]').prop('readonly', false);
+			form.find('#idCheckBtn').prop('disabled', false);
+			form[0].reset(); //다시보기
+			layerPopClose();
+		}
+
+
+		// 아이디 중복 체크
+		function checkLoginId() {
+			const loginId = $('#signupForm input[name="loginId"]');
+			isValid(loginId, '아이디');
+			const count = getJson(`/member-count`, { loginId : loginId.val() });
+			
+			if (count > 0) {
+				alert('이미 가입된 아이디가 있습니다.');
+				loginId.focus();
+				return false;
+			}
+
+			if (confirm('사용 가능한 아이디입니다.\n입력하신 아이디로 결정하시겠어요?')) {
+				loginId.prop('readonly', true);
+				$('#idCheckBtn').prop('disabled', true);
+			}
+		}
+
+
+		// 회원 정보 유효성 검사
+		function validationMemberInfo(form) { //다시보기
+			
+// 			console.log(form)
+			const fields = form.find('input:not([type="radio"])'); // input 태그 중에 radio type만 제외하고 선택 
+			const fieldNames = ['아이디', '비밀번호', '비밀번호 재입력', '이름', '생년월일'];
+// 			console.log(fields)
+			
+			for (let i = 0, len = fields.length; i < len; i++) {
+// 				console.log($(fields[i]))
+				isValid($(fields[i]), fieldNames[i]);
+			}
+			if (form.find('[name=loginId]').prop('readonly') === false) {
+				alert('아이디 중복 체크를 완료해 주세요.');
+				throw new Error();
+			}
+			
+			if (form.find('[name=password]').val() !== form.find('[name=passwordCheck]').val()) {
+				alert('비밀번호가 일치하지 않습니다.');
+				form.find('[name=passwordCheck]').focus();
+				throw new Error();
+			}
+			
+			if(form.find('[name=birthday]').val().length < 8) {
+				alert('생년월일을 8자리 입력해 주세요.')
+				form.find('[name=birthday]').focus();
+				throw new Error();
+			}
+		}
+
+
+		// 회원 정보 저장 (회원가입)
+		function saveMember() {
+
+			// 1. 필드 유효성 검사
+			const form = $('#signupForm');
+			console.log(form[0]);
+			validationMemberInfo(form);
+			
+			// 2. 파라미터 세팅
+			const params = {}
+// 			new FormData(form[0]).forEach((value, key) => console.log(key +' : '+ value));
+			new FormData(form[0]).forEach((value, key) => params[key] = value.trim()); //다시보기, form 내 name 기준으로 key 출력 
+			params.birthday = params.birthday.replace(/(\d{4})(\d{2})(\d{2})/g, '$1-$2-$3');
+			
+			console.log(params)
+			
+			// 3. Save API 호출
+			callApi('/members', 'post', params);
+			alert('가입을 축하드립니다!\n로그인 후 서비스를 이용해 주세요.');
+			closeSignupPopup();
+		}
+		
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!-- <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">
+	<th:block layout:fragment="title">
+        <title>리스트 페이지</title>
+    </th:block>
+	
+    <th:block layout:fragment="content">
+   		<div class="page_tits">
+            <h3>대화하기</h3>
+            <p class="path"><strong>현재 위치 :</strong> <span>고객센터</span> <span>대화하기</span> <span>리스트</span></p>
+        </div>
+    
+        <div class="content">
+        	<section>
+        		<tbody>
+		            <div>
+		                <ul th:each="room : ${list}">
+		                    <li><a href="javascript:void(0);" th:onclick="goChatPage([[${room.roomId}]], [[${room.secretYn}]])">[[${room.secretYn} ? '[비밀] ' : '']] [[${room.name}]]</a></li>
+<!-- 		                    <li><a th:href="@{/chat/room(roomId=${room.roomId})}">[[${room.name}]]</a></li> -->
+		                </ul>
+		            </div>
+	            </tbody>
+            </section>
+        
+	        <form id="saveForm" th:action="@{/chat/room}" method="post">
+	        	<!--/* 서버로 전달할 비밀글 여부 */-->
+				<input type= "hidden" id="secretYn" name="secretYn" />
+	        	<input type="text" name="name" class="form-control" placeholder="방제목을 입력해 주세요.">
+	        	<tr>
+                    <th scope="row">비밀글</th>
+                    <td><span class="chkbox"><input type="checkbox" id="isSecret" name="isSecret" class="chk" th:onclick="secretchk();"/><i></i><label for="isSecret"> 설정</label></span></td>
+                    <th scope="row">비밀번호</th>
+                    <td colspan="1"><input type="text" id="password" name="password" placeholder="비밀번호를 입력해 주세요." readonly/></td>
+                </tr>
+	            <button type="button" id="saveBtn" onclick="savePost();" class="btn btn-secondary">개설하기</button>
+	        </form>
+	        
+	        <!--/* 비밀방 popup */-->
+			<div id="signupPopup" class="popLayer">
+				<h3>비밀방</h3>
+				<div class="pop_container">
+					<form id="signupForm" onsubmit="return false;" autocomplete="off">
+						<table class="tb tb_row tl">
+							<colgroup>
+								<col style="width:30%;" /><col style="width:70%;" />
+							</colgroup>
+							<tbody>
+								<tr>
+									<input type="text" name="roomId" placeholder="roomId" maxlength="30" />
+								</tr>
+								<tr>
+									<th scope="row">비밀번호<span class="es">필수 입력</span></th>
+									<td><input type="password" name="password" placeholder="비밀번호" maxlength="30" /></td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+					<p class="btn_set">
+						<button type="button" class="btns btn_st2" onclick="checkPassword();">수정</button>
+						<button type="button" class="btns btn_bdr2" onclick="closeSignupPopup();">취소</button>
+					</p>
+				</div>
+				<button type="button" class="btn_close" onclick="closeSignupPopup();"><span><i class="far fa-times-circle"></i></span></button>
+			</div>
+	        
+        </div>
+    </th:block>
+	
+</html>
+
+<script th:inline="javascript">
+	$(document).ready(function(){
+		
+	    var roomName = [[${roomName}]];	    
+	    if(roomName != null)
+	        alert("[" + roomName.name + "]방이 개설되었습니다.");
+	    
+	    $('#signupPopup').find('[name=password]').on('keyup', function(e) {
+        	if (e.keyCode === 13) {
+        		checkPassword();
+        	}
+        });
+	
+	});
+	
+	function savePost() {
+		
+		var form = $('#saveForm');
+        var name = $("input[name='name']").val();	
+        
+        if(name == "") {
+            alert("방제목을 입력해 주세요.");
+        	return false;
+        }
+        
+        if(form.find('input[name="isSecret"]').prop('checked')) {
+        	if (form.find('input[name="password"]').val().length < 1) {
+        		alert("비밀번호를 입력해주세요.");
+        		form.find('input[name="password"]').focus();
+        		return false;
+        	}
+        }
+
+		form.find('[name="secretYn"]').val(form.find('[name="isSecret"]').prop('checked'));
+       	form.submit();
+
+	}
+	
+	
+	function secretchk() {
+    	
+    	const form = $('#saveForm');
+    	
+    	if(form.find('[name="isSecret"]').prop('checked')) {  // $('#isSecret').is(':checked') 사용가능
+    		form.find('[name="password"').prop('readonly', false);
+    	} else {
+    		form.find('[name="password"').val('').prop('readonly', true);
+    		
+    	}
+    }
+	
+	function goChatPage(roomid, secret) {
+		
+		if(secret == true) {
+			openSignupPopup(roomid);
+			
+		} else {
+			location.href = '/chat/room?roomId=' + roomid;
+		}		
+	}
+	
+	// 비밀방 체크 팝업 open
+	function openSignupPopup(roomid) {
+ 		
+ 		const form = $('#signupForm');
+ 		form.find('[name=roomId]').val(roomid);
+ 		layerPop('signupPopup');
+ 		form.find('[name=password]').focus();
+	}
+	
+	// 비밀방 체크 팝업 close
+	function closeSignupPopup() {
+		const form = $('#signupForm');
+		form[0].reset(); //다시보기
+		layerPopClose();
+	}
+	
+	// 비밀방 체크
+	function checkPassword() {
+		
+		const form = $('#signupForm');
+		const roomid = form.find('[name=roomId]').val();
+		const password = form.find('[name=password]').val();
+		
+		$.ajax({
+	        url : '/chat/checkpassword',
+	        type : 'POST',
+	        dataType : 'json',
+	        data : { 
+	        	roomId: roomid,
+				password: password
+			},
+	        async : false,
+	        success : function (result) {
+	            if(result) {
+	            	location.href = '/chat/room?roomId=' + roomid;
+	            } else if (result == false) {
+	            	alert("비밀번호가 틀렸습니다.");
+	            	form.find('[name=password]').val('').focus();
+	            } else {
+	            	alert("채팅방이 존재하지 않습니다.");
+	            }
+	        },
+	        error : function (request, status, error) {
+	        	console.log("error : " + error);
+        		return false;
+       		}
+		})
+		
+		
+	}
+		
+	
+	
+	
+	
+	
+</script>
