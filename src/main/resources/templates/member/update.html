@@ -118,7 +118,7 @@
 			const result = callApi(uri, 'patch', params);
 			if(result != id) {
 				alert("회원정보 수정을 완료하였습니다");
-				location.href = '/post/list.do';
+				location.href = '/user/post/list';
 			} else {
 				alert("회원정보 수정을 실패하였습니다");
 				location.href = '/member/updateMember.do';

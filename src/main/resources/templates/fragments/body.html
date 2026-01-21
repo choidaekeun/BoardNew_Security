@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body th:fragment="main-body">
 	<div id="adm_wrap">
 		<header>
 	        <div class="head">
 	            <h1>게시판 프로젝트</h1>
-	            <div th:if="${session.loginMember != null}" class="top_menu">
-	                <div class="login_user"><strong><i class="far fa-user-circle"></i> [[ ${session.loginMember.name} ]]</strong>님 반갑습니다.</div>
+	            <div sec:authorize="isAuthenticated()" class="top_menu">
+	                <div class="login_user"><strong><i class="far fa-user-circle"></i> <span sec:authentication="principal.userNm"></span></strong>님 반갑습니다.</div>
 	                <div class="logout">
 	                    <form action="/logout" method="post">
 	                        <button type="submit"><span class="skip_info">로그아웃</span><i class="fas fa-sign-out-alt"></i></button>
@@ -25,20 +25,20 @@
                     <ul>
                         <li class="has_sub"><a href="javascript: void(0);" class="on"><span>게시판 관리</span></a>
                             <ul>
-                                <li><a href="/post/list.do" class="on">리스트형</a></li>
+                                <li><a href="/user/post/list" class="on">리스트형</a></li>
                                 <li><a href="javascript: alert('준비 중입니다.');">갤러리형</a></li>
                                 <li><a href="javascript: alert('준비 중입니다.');">캘린더형</a></li>
                             </ul>
                         </li>
                         <li class="has_sub"><a href="javascript: void(0);" class="on"><span>고객센터</span></a>
                         	<ul>
-                        		<li><a href="/chat/rooms">대화하기</a></li>
+                        		<li><a href="/user/chat/rooms">대화하기</a></li>
                         	</ul>
                         </li>
                         <li class="has_sub"><a href="javascript: void(0);" class="on"><span>회원 관리</span></a>
                         	<ul>
-                        		<li><a href="/member/updateMember.do">회원정보</a></li>
-                                <li><a href="/member/deleteMember.do">회원탈퇴</a></li>
+                        		<li><a href="/user/member/updateMember.do">회원정보</a></li>
+                                <li><a href="/user/member/deleteMember.do">회원탈퇴</a></li>
                         	</ul>
                         </li>
                         

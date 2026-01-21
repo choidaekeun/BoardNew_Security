@@ -5,15 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.study.common.dto.SearchDto;
 
@@ -21,16 +13,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller //댓글과는 달리 회원가입 페이지가 필요하기 때문에 @RestController가 아닌 @Controller와 @ResponseBody가 사용
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
     // 로그인 페이지
-    @GetMapping("/login.do")
-    public String openLogin() {
-        return "member/login";
-    }
+//    @GetMapping("/login.do")
+//    public String openLogin() {
+//        return "member/login";
+//    }
     
     // 회원 정보 저장 (회원가입)
     @PostMapping("/members")
@@ -60,26 +53,26 @@ public class MemberController {
         return memberService.deleteMemberById(id);
     }
     
-    // 로그인
-    @PostMapping("/login")
-    @ResponseBody
-    public MemberResponse login(HttpServletRequest request) {
-    	
-    	// 1. 회원 정보 조회
-    	String loginId = request.getParameter("loginId");
-    	String password = request.getParameter("password");
-    	MemberResponse member = memberService.login(loginId, password);
-    	
-    	// 2. 세션에 회원 정보 저장 & 세션 유지 시간 설정
-    	if (member != null) {
-    		HttpSession session = request.getSession();
-    		session.setAttribute("loginMember", member);
-    		session.setMaxInactiveInterval(60 * 30);
-    	}
-    	
-    	return member;
-    	
-    }
+    // 로그인(old)
+//    @PostMapping("/login")
+//    @ResponseBody
+//    public MemberResponse login(HttpServletRequest request) {
+//
+//    	// 1. 회원 정보 조회
+//    	String loginId = request.getParameter("loginId");
+//    	String password = request.getParameter("password");
+//    	MemberResponse member = memberService.login(loginId, password);
+//
+//    	// 2. 세션에 회원 정보 저장 & 세션 유지 시간 설정
+//    	if (member != null) {
+//    		HttpSession session = request.getSession();
+//    		session.setAttribute("loginMember", member);
+//    		session.setMaxInactiveInterval(60 * 30);
+//    	}
+//
+//    	return member;
+//
+//    }
     
     // 로그아웃
     @PostMapping("/logout")

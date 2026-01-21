@@ -24,28 +24,27 @@ public class AuthController extends CommonController{
 	@MethodLog
     @GetMapping("/login")
     public String login(Model model,  @RequestParam(required = false, value = "errorMessage") String errorMessage) {
-    	
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication instanceof AnonymousAuthenticationToken){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof AnonymousAuthenticationToken){
             model.addAttribute("errorMessage", errorMessage);
             return "member/login";
-//        }
+        }
 
         //역할에 따른 페이지 이동
-//        String result = "";
-//        UserInfoVO uVo = getUserInfo();
-//        String roleSecurity = uVo.getRoleSecurity();
-//        if(roleSecurity.equals("ROLE_SYSTEM")) {
-//        	result = "redirect:/main/system/comp/compmng";
+        String result = "";
+        UserInfoVO uVo = getUserInfo();
+        String roleSecurity = uVo.getRoleSecurity();
+        if(roleSecurity.equals("ROLE_SYSTEM")) {
+        	result = "redirect:/main/system/comp/compmng";
 //        }else if(roleSecurity.equals("ROLE_ADMIN") || roleSecurity.equals("ROLE_MASTER")) {
-//        	result = "redirect:/main/admin/admmain/main";
-//        }else if(roleSecurity.equals("ROLE_USER")) {
-//        	result = "redirect:/main/user/main/main";
-//        }else{
-//        	result = "redirect:/intro";
-//        }
-//        
-//        return result;
+//        	result = "redirect:/admin/main";
+        }else if(roleSecurity.equals("ROLE_USER")) {
+        	result = "redirect:/user/post/list";
+        }else{
+        	result = "redirect:/login";
+        }
+
+        return result;
     }
 	
 

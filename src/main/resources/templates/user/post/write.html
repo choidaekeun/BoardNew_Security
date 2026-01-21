@@ -192,7 +192,7 @@
             function goListPage() {
 		        const queryString = new URLSearchParams(location.search);
 		        queryString.delete('id');
-		        location.href = '/post/list.do' + '?' + queryString.toString();
+		        location.href = '/user/post/list' + '?' + queryString.toString();
 		    }
 
             // 게시글 저장(수정)
@@ -234,7 +234,7 @@
                 form.find('[name="noticeYn"]').val(form.find('[name="isNotice"]').prop('checked'));
                 form.find('[name="removeFileIds"]').val(removeFileId.getAll().join()); // 추가
                 form.find('[name="secretYn"]').val(form.find('[name="isSecret"]').prop('checked'));
-                form.attr('action', [[ ${post == null} ]] ? '/post/save.do' : '/post/update.do');
+                form.attr('action', [[ ${post == null} ]] ? '/user/post/save' : '/user/post/update');
                 form.submit();
             }
             

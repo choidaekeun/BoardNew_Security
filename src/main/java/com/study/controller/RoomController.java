@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping(value = "/chat")
+@RequestMapping(value = "/user/chat")
 @Log4j2
 public class RoomController {
 
@@ -30,7 +30,7 @@ public class RoomController {
     public ModelAndView rooms(){
 
         log.info("# All Chat Rooms");
-        ModelAndView mv = new ModelAndView("chat/rooms");
+        ModelAndView mv = new ModelAndView("user/chat/rooms");
 
         mv.addObject("list", repository.findAllRooms());
 
@@ -43,7 +43,7 @@ public class RoomController {
 
         log.info("# Create Chat Room , name: " + name);
         rttr.addFlashAttribute("roomName", repository.createChatRoomDTO(params));
-        return "redirect:/chat/rooms";
+        return "redirect:/user/chat/rooms";
     }
 
     //채팅방 조회(접근)

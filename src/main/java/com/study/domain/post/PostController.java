@@ -8,13 +8,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.study.common.dto.MessageDto;
 import com.study.common.dto.SearchDto;
@@ -30,6 +24,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class PostController {
 	
@@ -37,37 +32,37 @@ public class PostController {
 	private final FileService fileService;
     private final FileUtils fileUtils;
 	
-	@GetMapping("/post/write.do")
+	@GetMapping("/post/write")
 	public String openPostWrite(@RequestParam(value = "id", required = false) final Long id, Model model) {
 		if (id !=null) {
 			PostResponse post = postService.findPostById(id);
 			model.addAttribute("post", post);
 		}
 
-		return "post/write";
+		return "/user/post/write";
 		
 	}
 	
 	// 신규 게시글 생성
-    @PostMapping("/post/save.do")
+    @PostMapping("/post/save")
     public String savepost(final PostRequest params, Model model) {
     	Long id = postService.savePost(params); // 1. 게시글 INSERT
     	List<FileRequest> files =  fileUtils.uploadFiles(params.getFiles()); // 2. 디스크에 파일 업로드
     	fileService.saveFiles(id, files); // 3. 업로드 된 파일 정보를 DB에 저장
-    	MessageDto message = new MessageDto("게시글 생성이 완료되었습니다.", "/post/list.do", RequestMethod.GET, null);
+    	MessageDto message = new MessageDto("게시글 생성이 완료되었습니다.", "/user/post/list", RequestMethod.GET, null);
     	return showMessageAndRedirect(message, model);
     }
     
     // 게시글 리스트 페이지
-    @GetMapping("/post/list.do")
+    @GetMapping("/post/list")
     public String openPostList(@ModelAttribute("params") final SearchDto params, Model model) {
     	PagingResponse<PostResponse> response = postService.findAllPost(params);
     	model.addAttribute("response", response);
-    	return "post/list";
+    	return "/user/post/list";
     }
     
     // 게시글 상세 페이지
-    @GetMapping("/post/view.do")
+    @GetMapping("/post/view")
     public String openPostview(@RequestParam(value = "id") final Long id, Model model) {
     	PostResponse post = postService.findPostById(id);
     	postService.viewCount(id);
@@ -75,7 +70,7 @@ public class PostController {
     	model.addAttribute("post", post);
     	
 //    	System.out.println("####post=>" + post.getTitle());
-    	return "post/view";
+    	return "/user/post/view";
     }
     
     
@@ -93,7 +88,7 @@ public class PostController {
 //    
     
     // 기존 게시글 수정
-    @PostMapping("/post/update.do")
+    @PostMapping("/post/update")
     public String updatePost(final PostRequest params, final SearchDto queryParams, Model model) {
     	
     	// 1. 게시글 정보 수정
@@ -114,22 +109,22 @@ public class PostController {
         // 6. 파일 삭제 (from database)
         fileService.deleteAllFileByIds(params.getRemoveFileIds());
     	
-    	MessageDto message = new MessageDto("게시글 수정이 완료되었습니다.", "/post/list.do", RequestMethod.GET, queryParamsToMap(queryParams));
+    	MessageDto message = new MessageDto("게시글 수정이 완료되었습니다.", "/user/post/list", RequestMethod.GET, queryParamsToMap(queryParams));
     	return showMessageAndRedirect(message, model);
     }
     
     // 게시글 삭제
-    @PostMapping("/post/delete.do")
+    @PostMapping("/post/delete")
     public String deletePost(@RequestParam(value = "id") final Long id, final SearchDto queryParams, Model model) {
     	postService.deletePost(id);
-    	MessageDto message = new MessageDto("게시글 삭제가 완료되었습니다.", "/post/list.do", RequestMethod.GET, queryParamsToMap(queryParams));
+    	MessageDto message = new MessageDto("게시글 삭제가 완료되었습니다.", "/user/post/list", RequestMethod.GET, queryParamsToMap(queryParams));
     	return showMessageAndRedirect(message, model);
     }
     
     // 사용자에게 메시지를 전달하고, 페이지를 리다이렉트 한다.
     private String showMessageAndRedirect(final MessageDto params, Model model) {
     	model.addAttribute("params", params);
-        return "common/messageRedirect";
+        return "/common/messageRedirect";
     }
     
     // 쿼리 스트링 파라미터를 Map에 담아 반환

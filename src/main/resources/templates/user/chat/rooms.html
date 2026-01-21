@@ -23,7 +23,7 @@
 	            </tbody>
             </section>
         
-	        <form id="saveForm" th:action="@{/chat/room}" method="post">
+	        <form id="saveForm" th:action="@{/user/chat/room}" method="post">
 	        	<!--/* 서버로 전달할 비밀글 여부 */-->
 				<input type= "hidden" id="secretYn" name="secretYn" />
 	        	<input type="text" name="name" class="form-control" placeholder="방제목을 입력해 주세요.">
@@ -126,7 +126,7 @@
 			openSignupPopup(roomid);
 			
 		} else {
-			location.href = '/chat/room?roomId=' + roomid;
+			location.href = '/user/chat/room?roomId=' + roomid;
 		}		
 	}
 	
@@ -154,7 +154,7 @@
 		const password = form.find('[name=password]').val();
 		
 		$.ajax({
-	        url : '/chat/checkpassword',
+	        url : '/user/chat/checkpassword',
 	        type : 'POST',
 	        dataType : 'json',
 	        data : { 
