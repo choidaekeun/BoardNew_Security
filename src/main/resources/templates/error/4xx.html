@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - 접근 거부</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .error-container {
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+        .error-code {
+            font-size: 72px;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+        .error-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .btn-home {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .btn-home:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="errorPage">
+        <span class="errorHead">Error!</span><br/>
+        <p th:text="${'path: ' + path}"></p>
+        <p th:text="${'status: ' + status}"></p>
+        <p th:text="${'timestamp: ' + timestamp}"></p>
+        <p th:text="${'error: ' + error}"></p>
+        <p th:text="${'errors: ' + errors}"></p>
+        <p th:text="${'exception: ' + exception}"></p>
+        <p th:text="${'message: ' + message}"></p>
+        <p th:text="${'trace: ' + trace}"></p>
+        <a href="/" class="btn-home">홈으로 이동</a>
+    </div>
+</body>
+</html>
