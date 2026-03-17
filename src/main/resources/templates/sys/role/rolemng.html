@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">
+    <th:block layout:fragment="title">
+        <title>역할 관리</title>
+    </th:block>
+
+    <th:block layout:fragment="content">
+        <div class="page_tits">
+            <h3>시스템 관리</h3>
+            <p class="path"><strong>현재 위치 :</strong> <span>시스템 관리</span> <span>역할 관리</span></p>
+        </div>
+
+        <div class="content">
+            <section>
+                <form id="roleForm" method="post" autocomplete="off">
+                    <table class="tb tb_row">
+                        <colgroup>
+                            <col style="width:15%;" /><col style="width:35%;" /><col style="width:15%;" /><col style="width:35%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row">역할명 <span class="es">필수 입력</span></th>
+                                <td><input type="text" id="roleName" name="roleName" maxlength="50" placeholder="역할명을 입력해 주세요." /></td>
+
+                                <th scope="row">시큐리티역할 <span class="es">필수 입력</span></th>
+                                <td><input type="text" id="roleSecurity" name="roleSecurity" maxlength="50" placeholder="예) ROLE_ADMIN" /></td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">역할레벨 <span class="es">필수 입력</span></th>
+                                <td><input type="number" id="roleLevel" name="roleLevel" min="1" placeholder="역할 레벨을 입력해 주세요." /></td>
+
+                                <th scope="row">삭제여부</th>
+                                <td>
+                                    <span class="rdo">
+                                        <input type="radio" id="deleteYnN" name="deleteYn" value="N" checked /><label for="deleteYnN"> 정상</label>
+                                    </span>
+                                    <span class="rdo">
+                                        <input type="radio" id="deleteYnY" name="deleteYn" value="Y" /><label for="deleteYnY"> 삭제</label>
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">역할설명</th>
+                                <td colspan="3"><input type="text" id="roleDesc" name="roleDesc" maxlength="200" placeholder="역할 설명을 입력해 주세요." /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <p class="btn_set">
+                    <button type="button" id="saveBtn" onclick="saveRole();" class="btns btn_st3 btn_mid">저장</button>
+                    <button type="button" onclick="resetForm();" class="btns btn_bdr3 btn_mid">초기화</button>
+                </p>
+            </section>
+        </div>
+    </th:block>
+
+    <th:block layout:fragment="script">
+        <script>
+        /*<![CDATA[*/
+
+            function saveRole() {
+                const form = $('#roleForm');
+                const roleName = form.find('[name="roleName"]').val().trim();
+                const roleSecurity = form.find('[name="roleSecurity"]').val().trim();
+                const roleLevel = form.find('[name="roleLevel"]').val().trim();
+
+                if (!roleName) {
+                    alert('역할명을 입력해 주세요.');
+                    form.find('[name="roleName"]').focus();
+                    return false;
+                }
+                if (!roleSecurity) {
+                    alert('시큐리티역할을 입력해 주세요.');
+                    form.find('[name="roleSecurity"]').focus();
+                    return false;
+                }
+                if (!roleLevel) {
+                    alert('역할레벨을 입력해 주세요.');
+                    form.find('[name="roleLevel"]').focus();
+                    return false;
+                }
+
+                form.attr('action', '/sys/role/save');
+                form.submit();
+            }
+
+            function resetForm() {
+                const form = $('#roleForm');
+                form[0].reset();
+            }
+
+        /*]]>*/
+        </script>
+    </th:block>
+</html>

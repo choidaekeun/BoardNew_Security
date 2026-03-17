@@ -31,7 +31,7 @@ public class UserSuccessHandler implements AuthenticationSuccessHandler{
 			url = "/main/admin/admmain/main";
 		}else if(roleLevel <= 3) {
 //			url = "/main/user/main/main";
-			url = "/admin/main";
+			url = "/user/post/list";
 		}else{
 			url = "/user/post/list";
 		}	
