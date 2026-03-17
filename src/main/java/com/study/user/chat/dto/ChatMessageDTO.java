@@ -1,4 +1,4 @@
-package com.study.common.dto;
+package com.study.user.chat.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,4 +10,5 @@ public class ChatMessageDTO {
     private String roomId;
     private String writer;
     private String message;
+    private String regId;
 }

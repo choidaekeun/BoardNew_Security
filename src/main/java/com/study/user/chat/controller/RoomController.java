@@ -1,4 +1,4 @@
-package com.study.controller;
+package com.study.user.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.study.common.dto.ChatRoomDTO;
-import com.study.common.repository.ChatRoomRepository;
-import com.study.domain.post.PostRequest;
+import com.study.user.chat.dto.ChatRoomDTO;
+import com.study.user.chat.service.ChatRoomService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -23,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Log4j2
 public class RoomController {
 
-    private final ChatRoomRepository repository;
+    private final ChatRoomService repository;
 
     //채팅방 목록 조회
     @GetMapping(value = "/rooms")
@@ -53,20 +52,20 @@ public class RoomController {
 
         model.addAttribute("room", repository.findRoomById(roomId));
     }
-    
+
     // 비밀방 체크
     @PostMapping("/checkpassword")
     @ResponseBody
     public Boolean checkPost(HttpServletRequest request) {
-    	
+
     	// 1. 회원 정보 조회
     	String roomId = request.getParameter("roomId");
     	String password = request.getParameter("password");
     	Boolean result = repository.secret(roomId, password);
-    	
+
     	return result;
-    	
+
     }
-    
-    
+
+
 }

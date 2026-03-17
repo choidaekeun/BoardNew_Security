@@ -1,4 +1,4 @@
-package com.study.common.dto;
+package com.study.user.chat.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +21,8 @@ public class ChatRoomDTO {
     //WebSocketSession은 Spring에서 Websocket Connection이 맺어진 세션
     private Boolean secretYn;
     private String password;
-    
+    private String regId;
+
 
     public static ChatRoomDTO create(ChatRoomDTO params){
         ChatRoomDTO room = new ChatRoomDTO();
@@ -33,17 +34,17 @@ public class ChatRoomDTO {
 //        room.password = passwordEncoder.encode(params.getPassword());
         return room;
     }
-    
+
     public void encodingPassword(PasswordEncoder passwordEncoder) {
     	if (StringUtils.isEmpty(password)) {
     		return;
     	}
     	password = passwordEncoder.encode(password); //다시보기 getpassword(); 차이
     }
-    
+
     public void clearPassword() {
         this.password = "";
     }
-    
-    
+
+
 }

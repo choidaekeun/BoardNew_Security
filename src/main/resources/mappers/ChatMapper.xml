@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.user.chat.mapper.ChatMapper">
+
+    <resultMap id="chatRoomResult" type="com.study.user.chat.dto.ChatRoomDTO">
+        <id     property="roomId"   column="room_id"/>
+        <result property="name"     column="room_nm"/>
+        <result property="secretYn" column="secret_yn_bool"/>
+        <result property="password" column="password"/>
+    </resultMap>
+
+    <!-- 채팅방 전체 조회 (최신순) -->
+    <select id="findAllRooms" resultMap="chatRoomResult">
+        SELECT room_id,
+               room_nm,
+               password,
+               CASE WHEN secret_yn = 'y' THEN TRUE ELSE FALSE END AS secret_yn_bool
+          FROM chat_room_info
+         ORDER BY reg_dt DESC
+    </select>
+
+    <!-- 채팅방 단건 조회 -->
+    <select id="findRoomById" resultMap="chatRoomResult">
+        SELECT room_id,
+               room_nm,
+               password,
+               CASE WHEN secret_yn = 'y' THEN TRUE ELSE FALSE END AS secret_yn_bool
+          FROM chat_room_info
+         WHERE room_id = #{roomId}
+    </select>
+
+    <!-- 채팅방 저장 -->
+    <insert id="saveRoom">
+        <bind name="secretYnChar" value="secretYn ? 'y' : 'n'"/>
+        INSERT INTO chat_room_info (room_id, room_nm, secret_yn, password, reg_id)
+        VALUES (#{roomId}, #{name}, #{secretYnChar}, #{password}, #{regId})
+    </insert>
+
+    <!-- 채팅 메시지 목록 조회 -->
+    <select id="findMessagesByRoomId" resultType="com.study.user.chat.dto.ChatMessageDTO">
+        SELECT room_id,
+               writer,
+               message
+          FROM chat_message_info
+         WHERE room_id = #{roomId}
+         ORDER BY message_id ASC
+    </select>
+
+    <!-- 채팅 메시지 저장 -->
+    <insert id="saveMessage">
+        INSERT INTO chat_message_info (room_id, writer, message, reg_id)
+        VALUES (#{roomId}, #{writer}, #{message}, #{regId})
+    </insert>
+
+</mapper>

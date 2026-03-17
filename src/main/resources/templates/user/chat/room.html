@@ -40,8 +40,6 @@ $(document).ready(function(){
 	var roomName = "[[${room.name}]]";
 	var roomId = "[[${room.roomId}]]";
 
-//     console.log(roomName + ", " + roomId + ", " + username);
-	
     var sockJs = new SockJS("/stomp/chat");
 	
   	//1. SockJS를 내부에 들고있는 stomp를 내어줌
@@ -53,10 +51,9 @@ $(document).ready(function(){
        //4. subscribe(path, callback)으로 메세지를 받을 수 있음
        stomp.subscribe("/sub/chat/room/" + roomId, function (chat) {
 
-           var content = JSON.parse(chat.body);
-           var str = '';
-    	   
-//            console.log('chat.body:', chat.body);
+            var content = JSON.parse(chat.body);
+            var str = '';
+
 //            console.log('Parsed content:', content);
 //            console.log('Is content an array?', Array.isArray(content));
 
@@ -65,7 +62,7 @@ $(document).ready(function(){
 				appendMessage(row.writer, row.message, row.writer === username);
 				});
            
-   		    }else { // 채팅방 입장, 실시간 출력
+   		    }else { // 채팅방 입장 또는 실시간 출력
    		    	var writer = content.writer;
             	var message = content.message;
    		    	
