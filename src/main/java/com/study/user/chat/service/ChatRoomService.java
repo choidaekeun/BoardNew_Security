@@ -42,7 +42,8 @@ public class ChatRoomService {
         return params;
     }
 
-    public void addMessageToRoom(String roomId, ChatMessageDTO message) {
+    public void addMessageToRoom(String roomId, ChatMessageDTO message, String userId) {
+        message.setRegId(userId);
         chatMapper.saveMessage(message);
     }
 

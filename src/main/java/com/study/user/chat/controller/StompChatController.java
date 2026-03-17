@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import com.study.user.chat.dto.ChatMessageDTO;
 import com.study.user.chat.service.ChatRoomService;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -35,8 +36,9 @@ public class StompChatController {
     }
 
     @MessageMapping(value = "/chat/message")
-    public void message(ChatMessageDTO message){
-    	chatRoomService.addMessageToRoom(message.getRoomId(), message);
+    public void message(ChatMessageDTO message, Principal principal){
+        String userId = principal.getName();
+    	chatRoomService.addMessageToRoom(message.getRoomId(), message, userId);
         template.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
     }
 }
