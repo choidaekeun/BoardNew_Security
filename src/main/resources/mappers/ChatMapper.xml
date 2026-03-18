@@ -8,6 +8,7 @@
         <result property="name"     column="room_nm"/>
         <result property="secretYn" column="secret_yn_bool"/>
         <result property="password" column="password"/>
+        <result property="regId"    column="reg_id"/>
     </resultMap>
 
     <!-- 채팅방 전체 조회 (최신순) -->
@@ -15,6 +16,7 @@
         SELECT room_id,
                room_nm,
                password,
+               reg_id,
                CASE WHEN secret_yn = 'y' THEN TRUE ELSE FALSE END AS secret_yn_bool
           FROM chat_room_info
          ORDER BY reg_dt DESC

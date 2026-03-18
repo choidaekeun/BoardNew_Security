@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.study.common.CommonController;
 import com.study.user.chat.dto.ChatRoomDTO;
 import com.study.user.chat.service.ChatRoomService;
 
@@ -20,7 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 @RequestMapping(value = "/user/chat")
 @Log4j2
-public class RoomController {
+public class RoomController extends CommonController {
 
     private final ChatRoomService repository;
 
@@ -41,6 +42,7 @@ public class RoomController {
     public String create(@RequestParam("name") String name, final ChatRoomDTO params, RedirectAttributes rttr){
 
         log.info("# Create Chat Room , name: " + name);
+        params.setRegId(getUserId());
         rttr.addFlashAttribute("roomName", repository.createChatRoomDTO(params));
         return "redirect:/user/chat/rooms";
     }
