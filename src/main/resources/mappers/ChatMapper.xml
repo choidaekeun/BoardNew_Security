@@ -55,4 +55,16 @@
         VALUES (#{roomId}, #{writer}, #{message}, #{regId})
     </insert>
 
+    <!-- 채팅 참여자 저장 (이미 존재하면 무시) -->
+    <insert id="saveMember">
+        INSERT IGNORE INTO chat_member_info (room_id, reg_id, writer)
+        VALUES (#{roomId}, #{regId}, #{writer})
+    </insert>
+
+    <!-- 채팅 참여자 삭제 -->
+    <delete id="deleteMember">
+        DELETE FROM chat_member_info
+        WHERE room_id = #{roomId} AND reg_id = #{regId}
+    </delete>
+
 </mapper>

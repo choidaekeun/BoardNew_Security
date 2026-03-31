@@ -5,10 +5,7 @@ import lombok.Setter;
 
 import org.apache.groovy.parser.antlr4.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -17,8 +14,6 @@ public class ChatRoomDTO {
 
     private String roomId;
     private String name;
-    private Set<WebSocketSession> sessions = new HashSet<>();
-    //WebSocketSession은 Spring에서 Websocket Connection이 맺어진 세션
     private Boolean secretYn;
     private String password;
     private String regId;

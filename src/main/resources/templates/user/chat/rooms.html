@@ -7,7 +7,7 @@
     <th:block layout:fragment="content">
    		<div class="page_tits">
             <h3>대화하기</h3>
-            <p class="path"><strong>현재 위치 :</strong> <span>고객센터</span> <span>대화하기</span> <span>리스트</span></p>
+            <p class="path"><strong>현재 위치 :</strong> <span>커뮤니케이션</span> <span>대화하기</span> <span>리스트</span></p>
         </div>
 
         <div class="content">
@@ -144,7 +144,7 @@
             if (secret == true) {
                 openSignupPopup(roomid);
             } else {
-                location.href = '/user/chat/room?roomId=' + roomid;
+                window.open('/user/chat/room?roomId=' + roomid, '_blank');
             }
         }
 
@@ -177,7 +177,7 @@
                 async: false,
                 success: function(result) {
                     if (result) {
-                        location.href = '/user/chat/room?roomId=' + roomid;
+                        window.open('/user/chat/room?roomId=' + roomid, '_blank');
                     } else if (result == false) {
                         alert("비밀번호가 틀렸습니다.");
                         form.find('[name=password]').val('').focus();

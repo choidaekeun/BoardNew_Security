@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.study.user.chat.dto.ChatMemberDTO;
 import com.study.user.chat.dto.ChatMessageDTO;
 import com.study.user.chat.dto.ChatRoomDTO;
 import com.study.user.chat.mapper.ChatMapper;
@@ -45,6 +46,14 @@ public class ChatRoomService {
     public void addMessageToRoom(String roomId, ChatMessageDTO message, String userId) {
         message.setRegId(userId);
         chatMapper.saveMessage(message);
+    }
+
+    public void joinRoom(ChatMemberDTO member) {
+        chatMapper.saveMember(member);
+    }
+
+    public void leaveRoom(ChatMemberDTO member) {
+        chatMapper.deleteMember(member);
     }
 
     public Boolean secret(final String roomId, final String password) {

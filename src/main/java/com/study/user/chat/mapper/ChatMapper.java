@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.study.user.chat.dto.ChatMemberDTO;
 import com.study.user.chat.dto.ChatMessageDTO;
 import com.study.user.chat.dto.ChatRoomDTO;
 
@@ -19,4 +20,8 @@ public interface ChatMapper {
     List<ChatMessageDTO> findMessagesByRoomId(String roomId);
 
     void saveMessage(ChatMessageDTO message);
+
+    void saveMember(ChatMemberDTO member);
+
+    void deleteMember(ChatMemberDTO member);
 }

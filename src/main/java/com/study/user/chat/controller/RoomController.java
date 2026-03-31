@@ -2,7 +2,6 @@ package com.study.user.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +14,8 @@ import com.study.user.chat.service.ChatRoomService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-//import java.util.List;
+import java.util.List;
+import com.study.user.chat.dto.ChatMessageDTO;
 
 @Controller
 @RequiredArgsConstructor
@@ -53,6 +53,13 @@ public class RoomController extends CommonController {
         log.info("# get Chat Room, roomID : " + roomId);
 
         model.addAttribute("room", repository.findRoomById(roomId));
+    }
+
+    // 채팅 히스토리 조회
+    @GetMapping("/messages")
+    @ResponseBody
+    public List<ChatMessageDTO> getMessages(@RequestParam String roomId) {
+        return repository.chatInfoList(roomId);
     }
 
     // 비밀방 체크
