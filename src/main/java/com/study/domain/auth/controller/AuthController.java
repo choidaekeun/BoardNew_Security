@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.study.aop.around.MethodLog;
 import com.study.common.CommonController;
-import com.study.domain.member.UserInfoVO;
+import com.study.domain.auth.vo.UserInfoVO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

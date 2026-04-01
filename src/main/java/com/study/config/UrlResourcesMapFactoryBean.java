@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import com.study.domain.auth.AuthorizationService;
+import com.study.domain.auth.service.AuthorizationService;
 
 public class UrlResourcesMapFactoryBean implements FactoryBean<LinkedHashMap<RequestMatcher, String>> {
 

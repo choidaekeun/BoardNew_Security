@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.domain.auth.mapper.AuthorizationMapper">
+
+    <!-- 메뉴별 역할 조회 (URL-Role 매핑) -->
+    <!-- 회사 설정 우선, 없으면 시스템 fallback, sys 메뉴는 항상 포함 -->
+    <select id="getMenuRole" resultType="com.study.domain.auth.vo.MenuVO">
+        SELECT *
+        FROM (
+            /* 1. 회사 설정 (시스템에 정의되지 않은 menu_id만) */
+            SELECT
+                mi.menu_id,
+                mi.menu_nm,
+                mi.menu_lc,
+                mi.menu_order,
+                cmr.role_id,
+                ri.role_nm,
+                ri.role_security
+            FROM comp_menu_role cmr
+            INNER JOIN menu_info mi ON cmr.menu_id = mi.menu_id
+            LEFT OUTER JOIN role_info ri ON ri.role_id = cmr.role_id
+            WHERE cmr.comp_id = #{compId}
+              AND mi.menu_gubun IN ('usr', 'adm')
+              AND mi.menu_lc IS NOT NULL
+              AND mi.menu_lc != ''
+              AND cmr.menu_id NOT IN (
+                  SELECT smr2.menu_id
+                  FROM system_menu_role smr2
+                  INNER JOIN menu_info mi2 ON smr2.menu_id = mi2.menu_id
+                  WHERE mi2.menu_gubun IN ('usr', 'adm')
+              )
+
+            UNION
+
+            /* 2. 시스템 설정 (usr, adm 메뉴) */
+            SELECT
+                mi.menu_id,
+                mi.menu_nm,
+                mi.menu_lc,
+                mi.menu_order,
+                smr.role_id,
+                ri.role_nm,
+                ri.role_security
+            FROM system_menu_role smr
+            INNER JOIN menu_info mi ON smr.menu_id = mi.menu_id
+            LEFT OUTER JOIN role_info ri ON ri.role_id = smr.role_id
+            WHERE mi.menu_gubun IN ('usr', 'adm')
+              AND mi.menu_lc IS NOT NULL
+              AND mi.menu_lc != ''
+
+            UNION
+
+            /* 3. 시스템 전용 메뉴 (sys) - 항상 포함 */
+            SELECT
+                mi.menu_id,
+                mi.menu_nm,
+                mi.menu_lc,
+                mi.menu_order,
+                smr.role_id,
+                ri.role_nm,
+                ri.role_security
+            FROM system_menu_role smr
+            INNER JOIN menu_info mi ON smr.menu_id = mi.menu_id
+            LEFT OUTER JOIN role_info ri ON ri.role_id = smr.role_id
+            WHERE mi.menu_gubun = 'sys'
+              AND mi.menu_lc IS NOT NULL
+              AND mi.menu_lc != ''
+        ) t
+        WHERE 1=1
+        ORDER BY menu_id ASC, role_id ASC
+    </select>
+
+    <!-- Role 계층 구조 조회 (path 문자열 반환) -->
+    <select id="getRoleHierarchy" resultType="map">
+        WITH RECURSIVE role_list AS (
+            SELECT
+                r.role_id,
+                r.role_security,
+                r.role_nm,
+                r.upper_role_id,
+                1 AS depth,
+                CAST(r.role_security AS CHAR(500)) AS path
+            FROM role_info r
+            WHERE r.upper_role_id = 0
+              AND r.status_flag = 'y'
+
+            UNION ALL
+
+            SELECT
+                r.role_id,
+                r.role_security,
+                r.role_nm,
+                r.upper_role_id,
+                rl.depth + 1,
+                CONCAT(rl.path, ' > ', r.role_security)
+            FROM role_info r
+            INNER JOIN role_list rl ON r.upper_role_id = rl.role_id
+            WHERE r.status_flag = 'y'
+        )
+        SELECT path
+        FROM role_list pl
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM role_list cl
+            WHERE cl.upper_role_id = pl.role_id
+        )
+        ORDER BY depth DESC
+    </select>
+
+</mapper>

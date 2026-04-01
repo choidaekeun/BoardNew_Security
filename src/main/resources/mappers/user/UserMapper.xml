@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.user.user.mapper.UserMapper">
+
+    <select id="findByUserId" resultType="com.study.user.user.dto.UserDTO">
+        SELECT
+            user_id,
+            user_nm,
+            email,
+            telno,
+            hp_no,
+            comp_id,
+            dept_id,
+            workplace_id,
+            role_id,
+            user_stat,
+            user_emp_nmb
+        FROM
+            user_info
+        WHERE
+            user_id = #{userId}
+    </select>
+
+    <update id="updateUser">
+        UPDATE user_info
+        SET
+            user_nm    = #{userNm},
+            email      = #{email},
+            telno      = #{telno},
+            hp_no      = #{hpNo}
+        WHERE
+            user_id = #{userId}
+    </update>
+
+    <update id="deleteUser">
+        UPDATE user_info
+        SET user_stat = 4
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>

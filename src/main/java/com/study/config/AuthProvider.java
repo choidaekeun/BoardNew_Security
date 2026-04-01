@@ -6,41 +6,40 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.study.domain.member.MemberMapper;
-import com.study.domain.member.UserInfoService;
-//import com.study.domain.member.MemberResponse;
-import com.study.domain.member.UserInfoVO;
+import com.study.domain.auth.service.UserInfoService;
+import com.study.domain.auth.vo.UserInfoVO;
 
-import jakarta.annotation.Resource;
 
 @Component
 public class AuthProvider implements AuthenticationProvider {
-	
-//	private MemberMapper memberMapper;
-					
-//	@Resource(name = "com.study.domain.member.UserInfoService")
+
 	@Autowired
-    private UserInfoService userinfoService;
-	
+    private UserInfoService userInfoService;
+
 	@Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String userid = (String) authentication.getPrincipal(); // 로그인 창에 입력한 id
         String password = (String) authentication.getCredentials(); // 로그인 창에 입력한 password
 
-        PasswordEncoder passwordEncoder = userinfoService.passwordEncoder();    
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         UsernamePasswordAuthenticationToken token;
+
+        UserInfoVO userVo = userInfoService.getUserinfoById(userid);
         
-        
-        UserInfoVO userVo = userinfoService.getUserinfoById(userid);
-        
+        if (userVo != null && "4".equals(userVo.getUserStat())) {
+            throw new DisabledException("Invalid user.");
+        }
+
         if (userVo != null && passwordEncoder.matches(password, userVo.getPassword())) { // 일치하는 user 정보가 있는지 확인
             List<GrantedAuthority> roles = new ArrayList<>();
             // roles.add(new SimpleGrantedAuthority("ROLE_USER")); // 권한 부여

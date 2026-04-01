@@ -2,7 +2,7 @@ package com.study.common;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.study.domain.member.UserInfoVO;
+import com.study.domain.auth.vo.UserInfoVO;
 
 public class CommonController {
 	

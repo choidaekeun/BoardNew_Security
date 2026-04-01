@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>회원탈퇴</title>
+    <link rel="stylesheet" th:href="@{/css/default.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/content.css}" />
+    <link rel="stylesheet" th:href="@{/css/button.css}" />
+</head>
+
+<body>
+	<!--/* 회원탈퇴 popup */-->
+	<div id="deletePopup" class="popLayer">
+		<h3>회원탈퇴</h3>
+		<div class="pop_container">
+			<p style="padding: 20px 0; text-align: center;">탈퇴하시겠습니까? 탈퇴 후 복구할 수 없습니다.</p>
+			<p class="btn_set">
+				<button type="button" class="btns btn_st2" onclick="deleteUser();">탈퇴</button>
+				<button type="button" class="btns btn_bdr2" onclick="closePopup();">취소</button>
+			</p>
+		</div>
+		<button type="button" class="btn_close" onclick="closePopup();"><span><i class="far fa-times-circle"></i></span></button>
+	</div>
+
+	<script th:src="@{/js/function.js}"></script>
+	<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+	<script th:src="@{/js/common.js}"></script>
+	<script src="https://kit.fontawesome.com/79613ae794.js" crossorigin="anonymous"></script>
+	<script>
+
+		$(document).ready(function() {
+			layerPop('deletePopup');
+		});
+
+		// 회원탈퇴
+		function deleteUser() {
+			const userId = "[[${loginUserId}]]";
+			const result = callApi(`/user/user/${userId}`, 'delete');
+			if (result > 0) {
+				alert("탈퇴 처리가 완료되었습니다");
+				location.href = '/logout';
+			} else {
+				alert("탈퇴 처리를 실패하였습니다");
+			}
+		}
+
+		// 팝업 close
+		function closePopup() {
+			layerPopClose();
+			history.back();
+		}
+
+	</script>
+</body>
+</html>

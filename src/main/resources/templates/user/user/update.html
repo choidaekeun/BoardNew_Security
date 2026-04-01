@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>회원정보 수정</title>
+    <link rel="stylesheet" th:href="@{/css/default.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/content.css}" />
+    <link rel="stylesheet" th:href="@{/css/button.css}" />
+</head>
+
+<body>
+	<!--/* 회원정보 popup */-->
+	<div id="userPopup" class="popLayer">
+		<h3>회원정보</h3>
+		<div class="pop_container">
+			<form id="userForm" onsubmit="return false;" autocomplete="off">
+				<input type="hidden" id="userId" name="userId"/>
+
+				<table class="tb tb_row tl">
+					<colgroup>
+						<col style="width:30%;" /><col style="width:70%;" />
+					</colgroup>
+					<tbody>
+						<tr>
+							<th scope="row">아이디</th>
+							<td>
+								<input type="text" name="userIdView" maxlength="30" readonly />
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">이름<span class="es">필수 입력</span></th>
+							<td><input type="text" name="userNm" placeholder="이름" maxlength="30" /></td>
+						</tr>
+						<tr>
+							<th scope="row">이메일</th>
+							<td><input type="text" name="email" placeholder="이메일" maxlength="50" /></td>
+						</tr>
+						<tr>
+							<th scope="row">전화번호</th>
+							<td><input type="text" name="telno" placeholder="전화번호" maxlength="20" /></td>
+						</tr>
+						<tr>
+							<th scope="row">휴대폰</th>
+							<td><input type="text" name="hpNo" placeholder="휴대폰" maxlength="20" /></td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+			<p class="btn_set">
+				<button type="button" class="btns btn_st2" onclick="updateUser();">수정</button>
+				<button type="button" class="btns btn_bdr2" onclick="closePopup();">취소</button>
+			</p>
+		</div>
+		<button type="button" class="btn_close" onclick="closePopup();"><span><i class="far fa-times-circle"></i></span></button>
+	</div>
+
+	<script th:src="@{/js/function.js}"></script>
+	<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+	<script th:src="@{/js/common.js}"></script>
+	<script src="https://kit.fontawesome.com/79613ae794.js" crossorigin="anonymous"></script>
+	<script>
+
+		$(document).ready(function() {
+			openPopup();
+		});
+
+		// 회원정보 팝업 open
+		function openPopup() {
+			const loginId = "[[${loginUserId}]]";
+			const uri = `/user/user/${loginId}`;
+			const response = getJson(uri);
+
+			$('#userId').val(response.userId);
+			$('#userForm [name=userIdView]').val(response.userId);
+			$('#userForm [name=userNm]').val(response.userNm);
+			$('#userForm [name=email]').val(response.email);
+			$('#userForm [name=telno]').val(response.telno);
+			$('#userForm [name=hpNo]').val(response.hpNo);
+			layerPop('userPopup');
+		}
+
+		// 회원정보 수정
+		function updateUser() {
+			const userId = $('#userId').val();
+			const params = {};
+
+			$('#userForm').find('input:not([name=userIdView])').each(function() {
+				params[$(this).attr('name')] = $(this).val().trim();
+			});
+
+			const result = callApi(`/user/user/${userId}`, 'patch', params);
+			console.log("result=>" + typeof result);
+			if (result > 0) {
+				alert("회원정보 수정을 완료하였습니다");
+				location.href = '/user/post/list';
+			} else {
+				alert("회원정보 수정을 실패하였습니다");
+			}
+		}
+
+		// 팝업 close
+		function closePopup() {
+			layerPopClose();
+			history.back();
+		}
+
+	</script>
+</body>
+</html>
