@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.admin.user.mapper.AdminUserMapper">
+
+    <sql id="search">
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType != null and searchType != ''">
+                    <choose>
+                        <when test="'userNm'.equals(searchType)">
+                            AND user_nm LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="'userId'.equals(searchType)">
+                            AND user_id LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                    </choose>
+                </when>
+                <otherwise>
+                    AND (
+                        user_nm LIKE CONCAT('%', #{keyword}, '%')
+                        OR user_id LIKE CONCAT('%', #{keyword}, '%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
+    <!-- 회원 목록 조회 -->
+    <select id="findAll" parameterType="com.study.common.dto.SearchDto" resultType="com.study.admin.user.dto.AdminUserDTO">
+        SELECT
+              ui.user_id
+            , ui.user_nm
+            , ui.hp_no
+            , ui.email
+            , ui.user_stat
+            , ci.cd_nm AS user_stat_nm
+        FROM
+            user_info ui
+            LEFT OUTER JOIN cd_info ci ON ci.cd_id = ui.user_stat
+            LEFT OUTER JOIN cd_group_info cgi ON cgi.cd_group_id = ci.cd_group_id
+        WHERE
+            1 = 1
+            <include refid="search" />
+        ORDER BY
+            ui.user_id ASC
+        LIMIT #{pagination.limitStart}, #{recordSize}
+    </select>
+
+    <!-- 회원 수 카운팅 -->
+    <select id="count" parameterType="com.study.common.dto.SearchDto" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            user_info
+        WHERE
+            1 = 1
+            <include refid="search" />
+    </select>
+
+    <!-- 회원 삭제 -->
+    <update id="deleteByUserIds" parameterType="list">
+        UPDATE user_info
+        SET
+            user_stat = 4
+        WHERE
+            user_id IN
+            <foreach collection="list" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+    </update>
+
+</mapper>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">
+    <th:block layout:fragment="title">
+        <title>회원 목록</title>
+    </th:block>
+
+    <th:block layout:fragment="content">
+        <div class="page_tits">
+            <h3>회원 관리</h3>
+            <p class="path"><strong>현재 위치 :</strong> <span>회원 관리</span> <span>회원 목록</span></p>
+        </div>
+
+        <div class="content">
+            <section>
+                <!--/* 검색 */-->
+                <div class="search_box">
+                    <form id="searchForm" onsubmit="return false;" autocomplete="off">
+                        <div class="sch_group fl">
+                            <select id="searchType" name="searchType" title="검색 유형 선택">
+                                <option value="">전체 검색</option>
+                                <option value="userNm">이름</option>
+                                <option value="userId">아이디</option>
+                            </select>
+                            <input type="text" id="keyword" name="keyword" placeholder="키워드를 입력해 주세요." title="키워드 입력" />
+                            <button type="button" class="bt_search" onclick="movePage(1);"><i class="fas fa-search"></i><span class="skip_info">검색</span></button>
+                        </div>
+                    </form>
+                </div>
+
+                <!--/* 버튼 (목록 위) */-->
+                <p class="btn_set tr" style="margin-bottom: 8px;">
+                    <a th:href="@{/admin/user/register}" class="btns btn_st3 btn_mid">신규회원등록</a>
+                    <button type="button" class="btns btn_st2 btn_mid" onclick="deleteUsers();">회원삭제</button>
+                </p>
+
+
+                <!--/* 리스트 */-->
+                <table class="tb tb_col">
+                    <colgroup>
+                        <col style="width:50px;"/><col style="width:7%;"/><col style="width:12%;"/><col style="width:12%;"/><col style="width:15%;"/><col style="width:auto;"/><col style="width:10%;"/><col style="width:10%;"/>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th scope="col"><input type="checkbox" id="checkAll" onclick="toggleCheckAll(this);"/></th>
+                            <th scope="col">번호</th>
+                            <th scope="col">이름</th>
+                            <th scope="col">아이디</th>
+                            <th scope="col">휴대전화</th>
+                            <th scope="col">이메일</th>
+                            <th scope="col">회원상태</th>
+                            <th scope="col">삭제여부</th>
+                        </tr>
+                    </thead>
+
+                    <!--/* 리스트 데이터 렌더링 영역 */-->
+                    <tbody id="list">
+                    </tbody>
+                </table>
+
+                <!--/* 페이지네이션 렌더링 영역 */-->
+                <div class="paging">
+                </div>
+            </section>
+        </div>
+    </th:block>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+
+            $(document).ready(function() {
+                setQueryStringParams();
+                findAllUser();
+            });
+
+            function setQueryStringParams() {
+                if (!location.search) {
+                    return false;
+                }
+                const form = $('#searchForm');
+                new URLSearchParams(location.search).forEach((value, key) => {
+                    const input = form.find(`[name="${key}"]`);
+                    if (input.length) {
+                        input.val(value);
+                    }
+                });
+            }
+
+            function findAllUser() {
+                const list = [[ ${response.list} ]];
+                const pagination = [[ ${response.pagination} ]];
+                const params = [[ ${params} ]];
+
+                if (!list.length) {
+                    $('#list').html('<tr><td colspan="8"><div class="no_data_msg">검색된 결과가 없습니다.</div></td></tr>');
+                    $('.paging').html('');
+                    return;
+                }
+
+                let num = pagination.totalRecordCount - ((params.page - 1) * params.recordSize);
+                drawList(list, num);
+                drawPage(pagination, params);
+            }
+
+            function drawList(list, num) {
+                let html = '';
+                list.forEach(row => {
+                    html += `
+                        <tr>
+                            <td><input type="checkbox" class="userCheck" value="${row.userId}" /></td>
+                            <td>${num--}</td>
+                            <td>${row.userNm || ''}</td>
+                            <td>${row.userId}</td>
+                            <td>${row.hpNo || ''}</td>
+                            <td>${row.email || ''}</td>
+                            <td>${row.userStat || ''}</td>
+                            <td>${row.delYn == '1' ? '삭제' : '정상'}</td>
+                        </tr>
+                    `;
+                });
+                $('#list').html(html);
+            }
+
+            function drawPage(pagination, params) {
+                if (!pagination || !params) {
+                    $('.paging').html('');
+                    return;
+                }
+
+                let html = '';
+
+                if (pagination.existPrevPage) {
+                    html += `
+                        <a href="javascript:void(0);" onclick="movePage(1)" class="page_bt first">첫 페이지</a>
+                        <a href="javascript:void(0);" onclick="movePage(${pagination.startPage - 1})" class="page_bt prev">이전 페이지</a>
+                    `;
+                }
+
+                html += '<p>';
+                for (let i = pagination.startPage; i <= pagination.endPage; i++) {
+                    html += (i !== params.page)
+                        ? `<a href="javascript:void(0);" onclick="movePage(${i});">${i}</a>`
+                        : `<span class="on">${i}</span>`;
+                }
+                html += '</p>';
+
+                if (pagination.existNextPage) {
+                    html += `
+                        <a href="javascript:void(0);" onclick="movePage(${pagination.endPage + 1});" class="page_bt next">다음 페이지</a>
+                        <a href="javascript:void(0);" onclick="movePage(${pagination.totalPageCount});" class="page_bt last">마지막 페이지</a>
+                    `;
+                }
+
+                $('.paging').html(html);
+            }
+
+            function movePage(page) {
+                const form = $('#searchForm');
+                const queryParams = {
+                    page: page ? page : 1,
+                    recordSize: [[ ${params.recordSize} ]],
+                    pageSize: [[ ${params.pageSize} ]],
+                    searchType: form.find('[name="searchType"]').val(),
+                    keyword: form.find('[name="keyword"]').val()
+                };
+                location.href = location.pathname + '?' + new URLSearchParams(queryParams).toString();
+            }
+
+            function toggleCheckAll(checkAll) {
+                $('.userCheck').prop('checked', checkAll.checked);
+            }
+
+            function deleteUsers() {
+                const checked = $('.userCheck:checked');
+                if (checked.length === 0) {
+                    alert('삭제할 회원을 선택해 주세요.');
+                    return;
+                }
+
+                if (!confirm(checked.length + '명의 회원을 삭제하시겠습니까?')) {
+                    return;
+                }
+
+                const form = $('<form>', { method: 'POST', action: '/admin/user/delete' });
+                checked.each(function() {
+                    form.append($('<input>', { type: 'hidden', name: 'userIds', value: $(this).val() }));
+                });
+
+                $('body').append(form);
+                form.submit();
+            }
+
+        /*]]>*/
+        </script>
+    </th:block>
+
+</html>
