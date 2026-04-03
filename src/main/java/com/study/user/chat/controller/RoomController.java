@@ -15,6 +15,7 @@ import com.study.user.chat.service.ChatRoomService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import com.study.user.chat.dto.ChatMemberDTO;
 import com.study.user.chat.dto.ChatMessageDTO;
 
 @Controller
@@ -60,6 +61,13 @@ public class RoomController extends CommonController {
     @ResponseBody
     public List<ChatMessageDTO> getMessages(@RequestParam String roomId) {
         return repository.chatInfoList(roomId);
+    }
+
+    // 채팅방 참여 이력 조회
+    @GetMapping("/member")
+    @ResponseBody
+    public ChatMemberDTO getMember(@RequestParam String roomId) {
+        return repository.findMember(roomId, getUserId());
     }
 
     // 비밀방 체크

@@ -34,12 +34,28 @@
 <script>
 $(document).ready(function(){
 	
-	var username = "";
-	while (!username) {
-		username = prompt("사용할 닉네임을 입력하세요.");
-	}
 	var roomName = "[[${room.name}]]";
 	var roomId = "[[${room.roomId}]]";
+	var username = "";
+
+	var memberInfo = null;
+	$.ajax({
+		url: '/user/chat/member',
+		type: 'GET',
+		data: { roomId: roomId },
+		async: false,
+		success: function(data) { memberInfo = data; }
+	});
+
+	if (memberInfo) {
+		username = memberInfo.writer;
+	} else {
+		while (!username) {
+			var input = prompt("사용할 닉네임을 입력하세요.");
+			if (input === null) { window.close(); return; }
+			username = input.trim();
+		}
+	}
 
     var sockJs = new SockJS("/stomp/chat");
 	
@@ -57,7 +73,7 @@ $(document).ready(function(){
             appendMessage(writer, message, writer === username);
        });
 
-       //4. 히스토리 조회 및 출력(WebSocket 연결후 1회만 실행)
+       //4. 히스토리 조회 및 출력 완료 후 입장 메시지 발송
        $.ajax({
            url: '/user/chat/messages',
            type: 'GET',
@@ -66,10 +82,10 @@ $(document).ready(function(){
                history.forEach(function(row) {
                    appendMessage(row.writer, row.message, row.writer === username);
                });
+               //5. 히스토리 출력 완료 후 입장 메시지 발송
+               if (!memberInfo) stomp.send('/pub/chat/enter', {}, JSON.stringify({roomId: roomId, writer: username}));
            }
        });
-       //5. send(path, header, message)로 메세지를 보낼 수 있음
-       stomp.send('/pub/chat/enter', {}, JSON.stringify({roomId: roomId, writer: username}))
     });
 
     function appendMessage(writer, message, isUser) {

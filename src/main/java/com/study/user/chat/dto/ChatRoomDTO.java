@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.apache.groovy.parser.antlr4.util.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -17,6 +19,8 @@ public class ChatRoomDTO {
     private Boolean secretYn;
     private String password;
     private String regId;
+    private String regDt;
+    private List<ChatMemberDTO> chatMembers;
 
 
     public static ChatRoomDTO create(ChatRoomDTO params){

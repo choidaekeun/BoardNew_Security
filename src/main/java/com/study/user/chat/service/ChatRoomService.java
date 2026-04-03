@@ -48,6 +48,10 @@ public class ChatRoomService {
         chatMapper.saveMessage(message);
     }
 
+    public ChatMemberDTO findMember(String roomId, String regId) {
+        return chatMapper.findMember(roomId, regId);
+    }
+
     public void joinRoom(ChatMemberDTO member) {
         chatMapper.saveMember(member);
     }

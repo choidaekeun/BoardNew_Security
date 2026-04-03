@@ -9,17 +9,28 @@
         <result property="secretYn" column="secret_yn_bool"/>
         <result property="password" column="password"/>
         <result property="regId"    column="reg_id"/>
+        <result property="regDt"    column="reg_dt"/>
+        <collection property="chatMembers" ofType="com.study.user.chat.dto.ChatMemberDTO">
+            <id     property="regId"  column="m_reg_id"/>
+            <result property="roomId" column="m_room_id"/>
+            <result property="writer" column="m_writer"/>
+        </collection>
     </resultMap>
 
     <!-- 채팅방 전체 조회 (최신순) -->
     <select id="findAllRooms" resultMap="chatRoomResult">
-        SELECT room_id,
-               room_nm,
-               password,
-               reg_id,
-               CASE WHEN secret_yn = 'y' THEN TRUE ELSE FALSE END AS secret_yn_bool
-          FROM chat_room_info
-         ORDER BY reg_dt DESC
+        SELECT r.room_id,
+               r.room_nm,
+               r.password,
+               r.reg_id,
+               DATE_FORMAT(r.reg_dt, '%Y-%m-%d %H:%i') AS reg_dt,
+               CASE WHEN r.secret_yn = 'y' THEN TRUE ELSE FALSE END AS secret_yn_bool,
+               m.room_id  AS m_room_id,
+               m.reg_id   AS m_reg_id,
+               m.writer   AS m_writer
+          FROM chat_room_info r
+          LEFT JOIN chat_member_info m ON r.room_id = m.room_id
+         ORDER BY r.reg_dt DESC
     </select>
 
     <!-- 채팅방 단건 조회 -->
@@ -54,6 +65,13 @@
         INSERT INTO chat_message_info (room_id, writer, message, reg_id)
         VALUES (#{roomId}, #{writer}, #{message}, #{regId})
     </insert>
+
+    <!-- 채팅 참여자 단건 조회 -->
+    <select id="findMember" resultType="com.study.user.chat.dto.ChatMemberDTO">
+        SELECT room_id, reg_id, writer
+          FROM chat_member_info
+         WHERE room_id = #{roomId} AND reg_id = #{regId}
+    </select>
 
     <!-- 채팅 참여자 저장 (이미 존재하면 무시) -->
     <insert id="saveMember">
