@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">
+    <th:block layout:fragment="title">
+        <title>글작성 페이지</title>
+    </th:block>
+
+    <th:block layout:fragment="content">
+        <div class="page_tits">
+            <h3>게시판 관리</h3>
+            <p class="path"><strong>현재 위치 :</strong> <span>게시판 관리</span> <span>리스트형</span> <span>글작성</span></p>
+        </div>
+
+        <div class="content">
+            <section>
+                <form id="saveForm" method="post" autocomplete="off" enctype="multipart/form-data">
+                    <!--/* 게시글 수정인 경우, 서버로 전달할 게시글 번호 (PK) */-->
+                    <input type="hidden" id="boardId" name="boardId" th:if="${notice != null}" th:value="${notice.boardId}" />
+
+                    <!--/* 서버로 전달할 공지글 여부 */-->
+                    <input type="hidden" id="noticeYn" name="noticeYn" />
+
+                    <!--/* 삭제 처리할 파일 번호 */-->
+                    <input type="hidden" id="removeFileIds" name="removeFileIds" />
+
+                    <!--/* 서버로 전달할 비밀글 여부 */-->
+                    <input type= "hidden" id="secretYn" name="secretYn" />
+
+                    <table class="tb tb_row">
+                        <colgroup>
+                            <col style="width:15%;" /><col style="width:35%;" /><col style="width:15%;" /><col style="width:35%;" />
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row">공지글</th>
+                                <td><span class="chkbox"><input type="checkbox" id="isNotice" name="isNotice" class="chk" /><i></i><label for="isNotice"> 설정</label></span></td>
+
+                                <th scope="row">등록일</th>
+                                <td colspan="3"><input type="text" id="createdDate" name="createdDate" readonly /></td>
+                            </tr>
+
+                            <tr>
+                                <th>제목 <span class="es">필수 입력</span></th>
+                                <td colspan="3"><input type="text" id="title" name="title" maxlength="50" placeholder="제목을 입력해 주세요." /></td>
+                            </tr>
+
+                            <tr>
+                                <th>이름 <span class="es">필수 입력</span></th>
+                                <td colspan="3"><input type="text" id="writer" name="writer" maxlength="10" placeholder="이름을 입력해 주세요." /></td>
+                            </tr>
+
+                            <tr>
+                                <th>내용 <span class="es">필수 입력</span></th>
+                                <td colspan="3"><textarea id="content" name="content" cols="50" rows="10" placeholder="내용을 입력해 주세요."></textarea></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">비밀글</th>
+                                <td><span class="chkbox"><input type="checkbox" id="isSecret" name="isSecret" class="chk" onclick="secretchk(this);"/><i></i><label for="isSecret"> 설정</label></span></td>
+
+                                <th scope="row">비밀번호</th>
+                                <td colspan="3"><input type="text" id="password" name="password" placeholder="비밀번호를 입력해 주세요." readonly /></td>
+                            </tr>
+
+	                        <tr>
+						        <th>첨부파일</th>
+						        <td colspan="3">
+						            <div class="file_list">
+						                <div>
+						                    <div class="file_input">
+						                        <input type="text" readonly />
+						                        <label> 첨부파일
+						                            <input type="file" name="files" onchange="selectFile(this);" />
+						                        </label>
+						                    </div>
+						                    <button type="button" onclick="removeFile(this);" class="btns del_btn"><span>삭제</span></button>
+						                    <button type="button" onclick="addFile();" class="btns fn_add_btn"><span>파일 추가</span></button>
+						                </div>
+						            </div>
+						        </td>
+						    </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <p class="btn_set">
+                    <button type="button" id="saveBtn" onclick="savePost();" class="btns btn_st3 btn_mid">저장</button>
+                    <a href="javascript:void(0);" onclick="goListPage();" class="btns btn_bdr3 btn_mid">뒤로</a>
+                </p>
+            </section>
+        </div> <!--/* .content */-->
+    </th:block>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+
+            $(document).ready(function() {
+                renderPostInfo();
+                findAllFile();
+            });
+
+        	 // 전체 파일 조회
+            function findAllFile() {
+
+                // 1. 신규 등록/수정 체크
+                const notice = [[ ${notice}]];
+                if ( !notice ) {
+                    return false;
+                }
+
+                // 2. API 호출
+                const response = getJson(`/user/board/notice/${notice.boardId}/files`);
+
+                // 3. 로직 종료
+                if ( !response.length ) {
+                    return false;
+                }
+
+                // 4. 업로드 영역 추가
+                for (let i = 0, len = (response.length - 1); i < len; i++) {
+                    addFile();
+                }
+
+                // 5. 파일 선택 & 삭제 이벤트 재선언 & 파일명 세팅
+                const filenameInputs = $('.file_list input[type="text"]');
+                filenameInputs.each(function(i, input) {  // input ==> <input type="text" readonly />  다시보기
+                	const inputs = $(input);
+                	const fileInput = inputs.next().find('input[type="file"]');  //  <input type="file" name="files" onchange="selectFile(this);" />
+                	const fileRemoveBtn = inputs.parent().next();  // <button type="button" onclick="removeFile(this);" class="btns del_btn"><span>삭제</span></button>
+
+                    fileInput.attr('onchange', `selectFile(this, ${response[i].fileId})`);
+                    fileRemoveBtn.attr('onclick', `removeFile(this, ${response[i].fileId})`);
+                    inputs.val(response[i].originalName);
+                })
+            }
+
+            function renderPostInfo() {
+            	const notice = [[ ${notice} ]];
+
+				if ( !notice ) {
+					initCreatedDate();
+					return false;
+				}
+
+				const form = $('#saveForm');
+		        const fields = ['id', 'title', 'content', 'writer', 'noticeYn'];
+		        form.find('[name="isNotice"]').prop('checked', notice.noticeYn); //서버로 전달받은 공지 여부 체크
+		        form.find('[name="createdDate"]').val(dayjs(notice.createdDate).format('YYYY-MM-DD HH:mm'));
+		        form.find('[name="isSecret"]').prop('checked', notice.secretYn); //서버로 전달받은 비밀글 여부 체크
+            	form.find('[name="password"]').prop('readonly', !notice.secretYn);
+
+		        fields.forEach(field => {
+		        	form.find(`[name="${field}"]`).val(notice[field]);
+		        })
+            }
+
+            function secretchk() {
+
+            	const form = $('#saveForm');
+
+            	if(form.find('[name="isSecret"]').prop('checked')) {  // $('#isSecret').is(':checked') 사용가능
+            		form.find('[name="password"').prop('readonly', false);
+            	} else {
+            		form.find('[name="password"').val('').prop('readonly', true);
+            	}
+            }
+
+            // 등록일 초기화
+            function initCreatedDate() {
+            	$('#createdDate').val(dayjs().format('YYYY-MM-DD:HH:mm'));
+            }
+
+            function goListPage() {
+		        const queryString = new URLSearchParams(location.search);
+		        queryString.delete('id');
+		        location.href = '/user/board/notice' + '?' + queryString.toString();
+		    }
+
+            // 게시글 저장(수정)
+            function savePost() {
+                const form = $('#saveForm'); // form 영역 데이터 저장
+                const fields = [form.find('[name="title"]'), form.find('[name="writer"]'), form.find('[name="content"]')];
+                const fieldNames = ['제목', '이름', '내용'];
+
+                fields.forEach((field, i) => {
+                    isValid(field, fieldNames[i]);
+                });
+
+                if(form.find('input[name="isSecret"]').prop('checked')) {
+                	if (form.find('input[name="password"]').val().length < 1) {
+                		alert("비밀번호를 입력해주세요.");
+                		form.find('input[name="password"]').focus();
+                		return false;
+                	}
+                }
+
+             	 /*수정후 페이징, 검색 정보 유지 */
+                const queryString = new URLSearchParams(location.search);
+                queryString.delete('id');
+
+                let inputHtml = '';
+
+                queryString.forEach((value, key) => {
+                	inputHtml += `<input type="hidden" name="${key}" value="${value}" />`;
+                })
+
+                const inputs = $(inputHtml);
+                form.append(inputs);
+                /*수정후 페이징, 검색 정보 유지 끝*/
+
+                $('#saveBtn').prop('disabled', true); // 중복저장 방지 버튼 비활성화
+                form.find('[name="noticeYn"]').val(form.find('[name="isNotice"]').prop('checked'));
+                form.find('[name="removeFileIds"]').val(removeFileId.getAll().join()); // 추가
+                form.find('[name="secretYn"]').val(form.find('[name="isSecret"]').prop('checked'));
+                form.attr('action', [[ ${notice == null} ]] ? '/user/board/notice/save' : '/user/board/notice/update');
+                form.submit();
+            }
+
+            // 파일 삭제 처리용 익명 함수
+            const removeFileId = (function() {
+                const ids = [];
+                return {
+                    add(id) {
+                        if (ids.includes(id)) { //중복체크
+                            return false;
+                        }
+                        ids.push(id);
+                    },
+                    getAll() { //서버에 변경,삭제된 모든 파일의 id 전달
+                        return ids;
+                    }
+                }
+            }());
+
+            // 파일 선택
+            function selectFile(element, id) { //다시보기
+            	const elements = $(element);
+                const file = elements[0].files[0];
+                const filename = elements.closest('.file_input').find('input[type="text"]'); // closest 제일 가까운 조상 찾기
+
+                // 1. 파일 선택 창에서 취소 버튼이 클릭된 경우
+                if ( !file ) {
+                	filename.val('');
+                    return false;
+                }
+
+                // 2. 파일 크기가 10MB를 초과하는 경우
+                const fileSize = Math.floor(file.size / 1024 / 1024);
+                if (fileSize > 10) {
+                    alert('10MB 이하의 파일로 업로드해 주세요.');
+                    filename.val('');
+                    elements.val('');
+                    return false;
+                }
+
+                // 3. 파일명 지정
+                filename.val(file.name);
+
+                // 4. 삭제(변경)할 파일 id 추가 ****
+        	    if (id) {
+        	    	removeFileId.add(id);
+        	    }
+            }
+
+            // 파일 추가
+            function addFile() {
+                const fileDiv = $('<div></div>');
+                fileDiv.html(`
+                    <div class="file_input">
+                        <input type="text" readonly />
+                        <label> 첨부파일
+                            <input type="file" name="files" onchange="selectFile(this);" />
+                        </label>
+                    </div>
+                    <button type="button" onclick="removeFile(this);" class="btns del_btn"><span>삭제</span></button>
+                `);
+                $('.file_list').append(fileDiv);
+            }
+
+
+            // 파일 삭제
+            function removeFile(element, id) {
+				const elements = $(element);
+
+            	// 1. 삭제할 파일 id 추가 ****
+				if (id) {
+					removeFileId.add(id);
+				}
+
+            	// 2. 파일 영역 초기화 & 삭제
+                const fileAddBtn = elements.next();
+                if (fileAddBtn.length) { //첫번째 첨부파일인 경우
+                    const inputs = elements.prev().find('input');
+                    inputs.each(function() {
+                    });
+                    return false;
+                }
+                elements.parent().remove();
+            }
+
+        /*]]>*/
+        </script>
+    </th:block>
+</html>

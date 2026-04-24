@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.study.domain.file.FileMapper">
-	<!-- tb_file 테이블 전체 컬럼 -->
+	<!-- notice_file_info 테이블 전체 컬럼 -->
     <sql id="fileColumns">
-          id
-        , post_id
+          file_id
+        , board_id
         , original_name
         , save_name
         , size
@@ -13,16 +13,21 @@
         , created_date
         , deleted_date
     </sql>
-    
+
     <!-- 파일 정보 저장 -->
     <insert id="saveAll" parameterType="list">
-    	INSERT INTO tb_file (
-    		<include refid="fileColumns" />
+    	INSERT INTO notice_file_info (
+    		  board_id
+    		, original_name
+    		, save_name
+    		, size
+    		, delete_yn
+    		, created_date
+    		, deleted_date
     	) VALUES
     	<foreach item="file" collection="list" separator=",">
     	(
-    		#{file.id}
-    		, #{file.postId}
+    		  #{file.boardId}
     		, #{file.originalName}
     		, #{file.saveName}
     		, #{file.size}
@@ -32,57 +37,57 @@
     	)
     	</foreach>
     </insert>
-    
+
     <!-- 파일 리스트 조회 -->
-    <select id="findAllByPostId" parameterType="long" resultType="com.study.domain.file.FileResponse">
-        SELECT
-            *
-        FROM
-            tb_file
-        WHERE
-            delete_yn = 0
-            AND post_id = #{value}
-        ORDER BY
-            id
-    </select>
-    
-    <!-- 파일 리스트 조회 -->
-    <select id="findAllByIds" parameterType="list" resultType="com.study.domain.file.FileResponse">
+    <select id="findAllByBoardId" parameterType="long" resultType="com.study.common.file.dto.FileResponse">
         SELECT
             <include refid="fileColumns" />
         FROM
-            tb_file
+            notice_file_info
         WHERE
             delete_yn = 0
-            AND id IN
+            AND board_id = #{value}
+        ORDER BY
+            file_id
+    </select>
+
+    <!-- 파일 리스트 조회 -->
+    <select id="findAllByIds" parameterType="list" resultType="com.study.common.file.dto.FileResponse">
+        SELECT
+            <include refid="fileColumns" />
+        FROM
+            notice_file_info
+        WHERE
+            delete_yn = 0
+            AND file_id IN
             <foreach item="id" collection="list" open="(" separator="," close=")">
             #{id}
             </foreach>
         ORDER BY
-            id
+            file_id
     </select>
-    
+
     <!-- 파일 삭제 -->
     <delete id="deleteAllByIds" parameterType="list">
-        UPDATE tb_file
+        UPDATE notice_file_info
         SET
               delete_yn = 1
             , deleted_date = NOW()
         WHERE
-            id IN
+            file_id IN
             <foreach item="id" collection="list" open="(" separator="," close=")">
             #{id}
             </foreach>
     </delete>
-    
+
     <!-- 파일 상세정보 조회 -->
-    <select id="findById" parameterType="long" resultType="com.study.domain.file.FileResponse">
+    <select id="findById" parameterType="long" resultType="com.study.common.file.dto.FileResponse">
     	SELECT
             <include refid="fileColumns" />
         FROM
-            tb_file
+            notice_file_info
         WHERE
             delete_yn = 0
-            AND id = #{value}
+            AND file_id = #{value}
     </select>
 </mapper>

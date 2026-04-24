@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.user.board.notice.mapper.UserNoticeCommentMapper">
+
+    <!-- notice_comment 테이블 전체 컬럼 -->
+    <sql id="commentColumns">
+          comment_id
+        , board_id
+        , content
+        , writer
+        , delete_yn
+        , created_date
+        , modified_date
+    </sql>
+
+    <!-- 댓글 저장 -->
+    <insert id="save" parameterType="com.study.user.board.notice.dto.NoticeCommentRequest" useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO notice_comment (
+              board_id
+            , content
+            , writer
+            , delete_yn
+            , created_date
+            , modified_date
+        ) VALUES (
+              #{boardId}
+            , #{content}
+            , #{writer}
+            , 0
+            , NOW()
+            , NULL
+        )
+    </insert>
+
+    <!-- 댓글 상세정보 조회 -->
+    <select id="findById" parameterType="long" resultType="com.study.user.board.notice.dto.NoticeCommentResponse">
+        SELECT
+            <include refid="commentColumns" />
+        FROM
+            notice_comment
+        WHERE
+            comment_id = #{value}
+    </select>
+
+    <!-- 댓글 수정 -->
+    <update id="update" parameterType="com.study.user.board.notice.dto.NoticeCommentRequest">
+        UPDATE notice_comment
+        SET
+              modified_date = NOW()
+            , content = #{content}
+            , writer = #{writer}
+        WHERE
+            comment_id = #{commentId}
+    </update>
+
+    <!-- 댓글 삭제 -->
+    <delete id="deleteById" parameterType="long">
+        UPDATE notice_comment
+        SET
+            delete_yn = 1
+        WHERE
+            comment_id = #{id}
+    </delete>
+
+   <!-- 댓글 리스트 조회 -->
+    <select id="findAll" parameterType="com.study.user.board.notice.dto.NoticeCommentSearchDto" resultType="com.study.user.board.notice.dto.NoticeCommentResponse">
+        SELECT
+            <include refid="commentColumns" />
+        FROM
+            notice_comment
+        WHERE
+            delete_yn = 0
+            AND board_id = #{boardId}
+        ORDER BY
+            comment_id DESC
+        LIMIT #{pagination.limitStart}, #{recordSize}
+    </select>
+
+    <!-- 댓글 수 카운팅 -->
+    <select id="count" parameterType="com.study.user.board.notice.dto.NoticeCommentSearchDto" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            notice_comment
+        WHERE
+            delete_yn = 0
+            AND board_id = #{boardId}
+    </select>
+
+    <update id="deleteByAll">
+    update notice_comment
+    	set	delete_yn = 1
+    where
+        comment_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+           #{item}
+        </foreach>
+	</update>
+
+</mapper>

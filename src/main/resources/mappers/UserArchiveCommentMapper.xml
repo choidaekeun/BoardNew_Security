@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.user.board.archive.mapper.UserArchiveCommentMapper">
+
+    <sql id="commentColumns">
+          comment_id
+        , board_id
+        , content
+        , writer
+        , delete_yn
+        , created_date
+        , modified_date
+    </sql>
+
+    <insert id="save" parameterType="com.study.user.board.archive.dto.ArchiveCommentRequest"
+            useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO archive_comment (
+              board_id
+            , content
+            , writer
+            , delete_yn
+            , created_date
+            , modified_date
+        ) VALUES (
+              #{boardId}
+            , #{content}
+            , #{writer}
+            , 0
+            , NOW()
+            , NULL
+        )
+    </insert>
+
+    <select id="findById" parameterType="long"
+            resultType="com.study.user.board.archive.dto.ArchiveCommentResponse">
+        SELECT
+            <include refid="commentColumns" />
+        FROM archive_comment
+        WHERE comment_id = #{value}
+    </select>
+
+    <update id="update" parameterType="com.study.user.board.archive.dto.ArchiveCommentRequest">
+        UPDATE archive_comment
+        SET
+              modified_date = NOW()
+            , content = #{content}
+            , writer = #{writer}
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="deleteById" parameterType="long">
+        UPDATE archive_comment
+        SET delete_yn = 1
+        WHERE comment_id = #{value}
+    </update>
+
+    <select id="findAll" parameterType="com.study.user.board.archive.dto.ArchiveCommentSearchDto"
+            resultType="com.study.user.board.archive.dto.ArchiveCommentResponse">
+        SELECT
+            <include refid="commentColumns" />
+        FROM archive_comment
+        WHERE delete_yn = 0
+            AND board_id = #{boardId}
+        ORDER BY comment_id DESC
+        LIMIT #{pagination.limitStart}, #{recordSize}
+    </select>
+
+    <select id="count" parameterType="com.study.user.board.archive.dto.ArchiveCommentSearchDto"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM archive_comment
+        WHERE delete_yn = 0
+            AND board_id = #{boardId}
+    </select>
+
+    <update id="deleteAll">
+        UPDATE archive_comment
+        SET delete_yn = 1
+        WHERE comment_id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+</mapper>

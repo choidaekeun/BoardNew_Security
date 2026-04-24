@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.user.board.archive.mapper.UserArchiveMapper">
+
+    <sql id="search">
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType != null and searchType != ''">
+                    <choose>
+                        <when test="'title'.equals(searchType)">
+                            AND title LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="'content'.equals(searchType)">
+                            AND content LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="'writer'.equals(searchType)">
+                            AND writer LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                    </choose>
+                </when>
+                <otherwise>
+                    AND (
+                        title LIKE CONCAT('%', #{keyword}, '%')
+                        OR content LIKE CONCAT('%', #{keyword}, '%')
+                        OR writer LIKE CONCAT('%', #{keyword}, '%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
+    <sql id="archiveSelectColumns">
+          board_id
+        , title
+        , content
+        , writer
+        , view_cnt
+        , notice_yn
+        , delete_yn
+        , created_date
+        , modified_date
+    </sql>
+
+    <!-- archive_board_info CRUD -->
+
+    <insert id="save" parameterType="com.study.user.board.archive.dto.ArchiveRequest"
+            useGeneratedKeys="true" keyProperty="boardId">
+        INSERT INTO archive_board_info (
+              title
+            , content
+            , writer
+            , view_cnt
+            , notice_yn
+            , delete_yn
+            , created_date
+            , modified_date
+        ) VALUES (
+              #{title}
+            , #{content}
+            , #{writer}
+            , 0
+            , #{noticeYn}
+            , 0
+            , NOW()
+            , NULL
+        )
+    </insert>
+
+    <select id="findById" parameterType="long"
+            resultType="com.study.user.board.archive.dto.ArchiveResponse">
+        SELECT
+            <include refid="archiveSelectColumns" />
+        FROM archive_board_info
+        WHERE board_id = #{value}
+    </select>
+
+    <update id="update" parameterType="com.study.user.board.archive.dto.ArchiveRequest">
+        UPDATE archive_board_info
+        SET
+              modified_date = NOW()
+            , title = #{title}
+            , content = #{content}
+            , writer = #{writer}
+            , notice_yn = #{noticeYn}
+        WHERE board_id = #{boardId}
+    </update>
+
+    <update id="deleteById" parameterType="long">
+        UPDATE archive_board_info
+        SET delete_yn = 1
+        WHERE board_id = #{value}
+    </update>
+
+    <select id="findAll" parameterType="com.study.common.dto.SearchDto"
+            resultType="com.study.user.board.archive.dto.ArchiveResponse">
+        SELECT
+            <include refid="archiveSelectColumns" />
+        FROM archive_board_info
+        WHERE delete_yn = 0
+            <include refid="search" />
+        ORDER BY board_id DESC
+        LIMIT #{pagination.limitStart}, #{recordSize}
+    </select>
+
+    <select id="count" parameterType="com.study.common.dto.SearchDto" resultType="int">
+        SELECT COUNT(*)
+        FROM archive_board_info
+        WHERE delete_yn = 0
+            <include refid="search" />
+    </select>
+
+    <update id="hitCount" parameterType="long">
+        UPDATE archive_board_info
+        SET view_cnt = view_cnt + 1
+        WHERE board_id = #{value}
+    </update>
+
+</mapper>

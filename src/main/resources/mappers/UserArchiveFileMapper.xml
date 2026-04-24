@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.study.user.board.archive.mapper.UserArchiveFileMapper">
+
+    <insert id="saveAll" parameterType="list">
+        INSERT INTO archive_file_info (
+              board_id
+            , original_name
+            , save_name
+            , size
+            , delete_yn
+            , created_date
+            , deleted_date
+        ) VALUES
+        <foreach item="file" collection="list" separator=",">
+        (
+              #{file.boardId}
+            , #{file.originalName}
+            , #{file.saveName}
+            , #{file.size}
+            , 0
+            , NOW()
+            , NULL
+        )
+        </foreach>
+    </insert>
+
+    <select id="findAllByBoardId" parameterType="long"
+            resultType="com.study.common.file.dto.FileResponse">
+        SELECT
+              file_id
+            , board_id
+            , original_name
+            , save_name
+            , size
+            , delete_yn
+            , created_date
+            , deleted_date
+        FROM archive_file_info
+        WHERE delete_yn = 0
+            AND board_id = #{value}
+        ORDER BY file_id
+    </select>
+
+    <select id="findAllByIds" parameterType="list"
+            resultType="com.study.common.file.dto.FileResponse">
+        SELECT
+              file_id
+            , board_id
+            , original_name
+            , save_name
+            , size
+            , delete_yn
+            , created_date
+            , deleted_date
+        FROM archive_file_info
+        WHERE delete_yn = 0
+            AND file_id IN
+            <foreach item="id" collection="list" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        ORDER BY file_id
+    </select>
+
+    <update id="deleteAllByIds" parameterType="list">
+        UPDATE archive_file_info
+        SET
+              delete_yn = 1
+            , deleted_date = NOW()
+        WHERE file_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="findById" parameterType="long"
+            resultType="com.study.common.file.dto.FileResponse">
+        SELECT
+              file_id
+            , board_id
+            , original_name
+            , save_name
+            , size
+            , delete_yn
+            , created_date
+            , deleted_date
+        FROM archive_file_info
+        WHERE delete_yn = 0
+            AND file_id = #{value}
+    </select>
+
+</mapper>

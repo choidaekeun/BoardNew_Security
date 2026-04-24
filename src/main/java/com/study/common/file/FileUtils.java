@@ -1,7 +1,7 @@
 package com.study.common.file;
 
-import com.study.domain.file.FileRequest;
-import com.study.domain.file.FileResponse;
+import com.study.common.file.dto.FileRequest;
+import com.study.common.file.dto.FileResponse;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
@@ -15,10 +15,12 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 
 
 
@@ -169,10 +171,31 @@ public class FileUtils {
     	} catch (MalformedURLException e) {
     		throw new RuntimeException("file not found : " + filePath.toString());    	
     	}
-    	
+
     }
-    
-    
-    
-    
+
+    /**
+     * 파일 삭제 - createdDate, saveName으로 직접 삭제 (아카이브 파일 등 FileResponse 외 타입용)
+     */
+    public void deleteFileByInfo(final LocalDateTime createdDate, final String saveName) {
+        String uploadedDate = createdDate.toLocalDate().format(DateTimeFormatter.ofPattern("yyMMdd"));
+        deleteFile(uploadedDate, saveName);
+    }
+
+    /**
+     * 다운로드할 첨부파일 조회 - createdDate, saveName으로 직접 조회 (아카이브 파일 등 FileResponse 외 타입용)
+     */
+    public Resource readFileAsResource(final LocalDateTime createdDate, final String saveName) {
+        String uploadedDate = createdDate.toLocalDate().format(DateTimeFormatter.ofPattern("yyMMdd"));
+        Path filePath = Paths.get(uploadPath, uploadedDate, saveName);
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists() || !resource.isFile()) {
+                throw new RuntimeException("file not found : " + filePath);
+            }
+            return resource;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("file not found : " + filePath);
+        }
+    }
 }
