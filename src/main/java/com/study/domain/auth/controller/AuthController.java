@@ -39,7 +39,7 @@ public class AuthController extends CommonController{
 //        }else if(roleSecurity.equals("ROLE_ADMIN") || roleSecurity.equals("ROLE_MASTER")) {
 //        	result = "redirect:/admin/main";
         }else if(roleSecurity.equals("ROLE_USER")) {
-        	result = "redirect:/user/post/list";
+        	result = "redirect:/user/board/archive";
         }else{
         	result = "redirect:/login";
         }
