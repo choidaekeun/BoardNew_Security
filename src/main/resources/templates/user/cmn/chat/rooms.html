@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout/basic">
+	<th:block layout:fragment="title">
+        <title>대화하기</title>
+    </th:block>
+
+    <th:block layout:fragment="content">
+   		<div class="page_tits">
+            <h3>대화하기</h3>
+            <p class="path"><strong>현재 위치 :</strong> <span>커뮤니케이션</span> <span>대화하기</span> <span>리스트</span></p>
+        </div>
+
+        <div class="content">
+            <section>
+
+                <!--/* 채팅방 개설 폼 */-->
+                <form id="saveForm" th:action="@{/user/cmn/chat/room}" method="post">
+                    <input type="hidden" id="secretYn" name="secretYn" />
+                    <table class="tb tb_row tl">
+                        <colgroup>
+                            <col style="width:15%;"/><col style="width:35%;"/><col style="width:15%;"/><col style="width:35%;"/>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row">방제목</th>
+                                <td><input type="text" name="name" class="form-control" placeholder="방제목을 입력해 주세요."/></td>
+                                <th scope="row">비밀글</th>
+                                <td><span class="chkbox"><input type="checkbox" id="isSecret" name="isSecret" class="chk" th:onclick="secretchk();"/><i></i><label for="isSecret"> 설정</label></span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">비밀번호</th>
+                                <td colspan="3"><input type="text" id="password" name="password" class="form-control" placeholder="비밀번호를 입력해 주세요." readonly/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="btn_set tr">
+                        <button type="button" id="saveBtn" onclick="savePost();" class="btns btn_st3 btn_mid">개설하기</button>
+                    </p>
+                </form>
+
+                <!--/* 채팅방 목록 */-->
+                <table class="tb tb_col">
+                    <colgroup>
+                        <col style="width:auto;"/><col style="width:20%;"/><col style="width:15%;"/><col style="width:20%;"/>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th scope="col">방제목</th>
+                            <th scope="col">참여자</th>
+                            <th scope="col">개설자</th>
+                            <th scope="col">개설일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="room : ${list}">
+                            <td class="tl">
+                                <a href="javascript:void(0);" th:onclick="goChatPage([[${room.roomId}]], [[${room.secretYn}]])">
+                                    <span th:if="${room.secretYn}">[비밀] </span>[[${room.name}]]
+                                </a>
+                            </td>
+                            <td>
+                                <span th:each="member, stat : ${room.chatMembers}">
+                                    [[${member.writer}]]<span th:if="!${stat.last}">, </span>
+                                </span>
+                            </td>
+                            <td>[[${room.regId}]]</td>
+                            <td>[[${room.regDt}]]</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!--/* 비밀방 popup */-->
+                <div id="signupPopup" class="popLayer">
+                    <h3>비밀방</h3>
+                    <div class="pop_container">
+                        <form id="signupForm" onsubmit="return false;" autocomplete="off">
+                            <table class="tb tb_row tl">
+                                <colgroup>
+                                    <col style="width:30%;"/><col style="width:70%;"/>
+                                </colgroup>
+                                <tbody>
+                                    <tr>
+                                        <input type="hidden" name="roomId" />
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">비밀번호<span class="es">필수 입력</span></th>
+                                        <td><input type="password" name="password" placeholder="비밀번호" maxlength="30" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
+                        <p class="btn_set">
+                            <button type="button" class="btns btn_st2" onclick="checkPassword();">확인</button>
+                            <button type="button" class="btns btn_bdr2" onclick="closeSignupPopup();">취소</button>
+                        </p>
+                    </div>
+                    <button type="button" class="btn_close" onclick="closeSignupPopup();"><span><i class="far fa-times-circle"></i></span></button>
+                </div>
+
+            </section>
+        </div>
+    </th:block>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        $(document).ready(function() {
+
+            var roomName = [[${roomName}]];
+            if (roomName != null)
+                alert("[" + roomName.name + "]방이 개설되었습니다.");
+
+            $('#signupPopup').find('[name=password]').on('keyup', function(e) {
+                if (e.keyCode === 13) {
+                    checkPassword();
+                }
+            });
+        });
+
+        function savePost() {
+            var form = $('#saveForm');
+            var name = form.find('[name="name"]').val();
+
+            if (name == "") {
+                alert("방제목을 입력해 주세요.");
+                return false;
+            }
+
+            if (form.find('[name="isSecret"]').prop('checked')) {
+                if (form.find('[name="password"]').val().length < 1) {
+                    alert("비밀번호를 입력해주세요.");
+                    form.find('[name="password"]').focus();
+                    return false;
+                }
+            }
+
+            form.find('[name="secretYn"]').val(form.find('[name="isSecret"]').prop('checked'));
+            form.submit();
+        }
+
+        function secretchk() {
+            const form = $('#saveForm');
+            if (form.find('[name="isSecret"]').prop('checked')) {
+                form.find('[name="password"]').prop('readonly', false);
+            } else {
+                form.find('[name="password"]').val('').prop('readonly', true);
+            }
+        }
+
+        function goChatPage(roomid, secret) {
+            if (secret == true) {
+                openSignupPopup(roomid);
+            } else {
+                window.open('/user/cmn/chat/room?roomId=' + roomid, '_blank');
+            }
+        }
+
+        function openSignupPopup(roomid) {
+            const form = $('#signupForm');
+            form.find('[name=roomId]').val(roomid);
+            layerPop('signupPopup');
+            form.find('[name=password]').focus();
+        }
+
+        function closeSignupPopup() {
+            const form = $('#signupForm');
+            form[0].reset();
+            layerPopClose();
+        }
+
+        function checkPassword() {
+            const form = $('#signupForm');
+            const roomid = form.find('[name=roomId]').val();
+            const password = form.find('[name=password]').val();
+
+            $.ajax({
+                url: '/user/cmn/chat/checkpassword',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    roomId: roomid,
+                    password: password
+                },
+                async: false,
+                success: function(result) {
+                    if (result) {
+                        window.open('/user/cmn/chat/room?roomId=' + roomid, '_blank');
+                    } else if (result == false) {
+                        alert("비밀번호가 틀렸습니다.");
+                        form.find('[name=password]').val('').focus();
+                    } else {
+                        alert("채팅방이 존재하지 않습니다.");
+                    }
+                },
+                error: function(request, status, error) {
+                    console.log("error : " + error);
+                    return false;
+                }
+            });
+        }
+
+        /*]]>*/
+        </script>
+    </th:block>
+
+</html>

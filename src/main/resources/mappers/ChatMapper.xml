@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.study.user.chat.mapper.ChatMapper">
+<mapper namespace="com.study.user.cmn.chat.mapper.ChatMapper">
 
-    <resultMap id="chatRoomResult" type="com.study.user.chat.dto.ChatRoomDTO">
+    <resultMap id="chatRoomResult" type="com.study.user.cmn.chat.dto.ChatRoomDTO">
         <id     property="roomId"   column="room_id"/>
         <result property="name"     column="room_nm"/>
         <result property="secretYn" column="secret_yn_bool"/>
         <result property="password" column="password"/>
         <result property="regId"    column="reg_id"/>
         <result property="regDt"    column="reg_dt"/>
-        <collection property="chatMembers" ofType="com.study.user.chat.dto.ChatMemberDTO">
+        <collection property="chatMembers" ofType="com.study.user.cmn.chat.dto.ChatMemberDTO">
             <id     property="regId"  column="m_reg_id"/>
             <result property="roomId" column="m_room_id"/>
             <result property="writer" column="m_writer"/>
@@ -51,7 +51,7 @@
     </insert>
 
     <!-- 채팅 메시지 목록 조회 -->
-    <select id="findMessagesByRoomId" resultType="com.study.user.chat.dto.ChatMessageDTO">
+    <select id="findMessagesByRoomId" resultType="com.study.user.cmn.chat.dto.ChatMessageDTO">
         SELECT room_id,
                writer,
                message
@@ -67,7 +67,7 @@
     </insert>
 
     <!-- 채팅 참여자 단건 조회 -->
-    <select id="findMember" resultType="com.study.user.chat.dto.ChatMemberDTO">
+    <select id="findMember" resultType="com.study.user.cmn.chat.dto.ChatMemberDTO">
         SELECT room_id, reg_id, writer
           FROM chat_member_info
          WHERE room_id = #{roomId} AND reg_id = #{regId}
